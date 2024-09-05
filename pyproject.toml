@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "TikTok"
+version = "0.1.0"
+description = "Async wrapper for the TikTok research API"
+authors = ["Alexandre Teles <ateles.1@gmail.com>"]
+license = "AGPLv3"
+readme = "README.md"
+packages = [{include = "TikTok"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.8.2"
+orjson = "^3.10.7"
+httpx = {extras = ["brotli", "http2", "zstd"], version = "^0.27.2"}
+rich = "^13.8.0"
+stamina = "^24.3.0"
+structlog = "^24.4.0"
+setuptools = "^74.1.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pdoc3 = "^0.11.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
