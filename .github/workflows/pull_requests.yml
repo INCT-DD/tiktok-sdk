@@ -17,7 +17,7 @@ jobs:
     - name: Checkout main and rebase
       run: |
         git checkout main
-        git rebase ${{ github.head_ref }}
+        git rebase origin/${{ github.head_ref }}
     - name: Install poetry
       run: pipx install poetry
     - name: Setup Python
