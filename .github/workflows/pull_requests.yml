@@ -14,7 +14,10 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - run: git checkout ${{ github.head_ref }}
+    - name: Checkout main and rebase
+      run: |
+        git checkout main
+        git rebase ${{ github.head_ref }}
     - name: Install poetry
       run: pipx install poetry
     - name: Setup Python
