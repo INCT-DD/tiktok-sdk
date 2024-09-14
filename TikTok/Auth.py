@@ -32,9 +32,13 @@ from datetime import datetime, timedelta
 import pickle
 from pathlib import Path
 
-from TikTok.Types.RestAPI import APIEndpoints
+from TikTok.ValidationModels.RestAPI import APIEndpoints
 from TikTok.Exceptions.Auth import AuthException
-from TikTok.Types.OAuth2 import RequestHeadersModel, TokenRequestBodyModel, OAuth2Token
+from TikTok.ValidationModels.OAuth2 import (
+    RequestHeadersModel,
+    TokenRequestBodyModel,
+    OAuth2Token,
+)
 
 logger = structlog.get_logger()
 
