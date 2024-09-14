@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "TikTok"
-version = "0.1.1"
+version = "0.1.2"
 description = "Async wrapper for the TikTok research API"
 authors = ["Alexandre Teles <ateles.1@gmail.com>"]
 license = "AGPLv3"

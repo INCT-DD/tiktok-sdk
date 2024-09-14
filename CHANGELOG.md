@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.2 (2024-09-14)
+
+### Fix
+
+* fix(ci): pdoc installation ([`82c6f9d`](https://github.com/INCT-DD/tiktok-sdk/commit/82c6f9d700fbc1db30929a8b999ab94424d8d4a0))
+
 ## v0.1.1 (2024-09-14)
 
 ### Ci
