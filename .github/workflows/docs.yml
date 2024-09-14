@@ -28,19 +28,17 @@ jobs:
         fetch-depth: 0
     - name: Setup pages
       uses: actions/configure-pages@v5
-    - name: Install required tools
-      run: |
-        pipx install pdoc3
-        pipx install poetry
+    - name: Install poetry
+      run: pipx install poetry
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'poetry'
     - name: Install dependencies
-      run: poetry install
+      run: poetry install --with docs
     - name: Build docs
-      run: pdoc --html --output-dir docs TikTok
+      run: poetry run pdoc --html --output-dir docs TikTok
     - name: Upload pages artifacts
       uses: actions/upload-pages-artifact@v3
       with:
