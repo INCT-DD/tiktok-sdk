@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.1.1 (2024-09-14)
+
+### Ci
+
+* ci: docs publishing (#11)
+
+* refactor: change pdoc3 to docs deps group
+
+* ci: docs publishing
+
+* ci: call poetry lock before install ([`b105ef1`](https://github.com/INCT-DD/tiktok-sdk/commit/b105ef1bf38dc2eff1c52b9b49d5a4d60128c8b0))
+
+### Fix
+
+* fix(ci): deps missing for doc generation ([`29db1cb`](https://github.com/INCT-DD/tiktok-sdk/commit/29db1cb802ecc03f1d17bb30afaf74fcb73e4944))
+
+* fix(ci): install pdoc3 correctly (#12) ([`0e59cd5`](https://github.com/INCT-DD/tiktok-sdk/commit/0e59cd51e20648f2bf77fb27224aee3eb7c45dce))
+
 ## v0.1.0 (2024-09-13)
 
 ### Chore
