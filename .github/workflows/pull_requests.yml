@@ -30,7 +30,9 @@ jobs:
         python-version: '3.12'
         cache: 'poetry'
     - name: Install dependencies
-      run: poetry install
+      run: |
+        poetry lock
+        poetry install
     - name: Python Semantic Release
       uses: python-semantic-release/python-semantic-release@v9.8.8
       with:
