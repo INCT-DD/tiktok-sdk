@@ -1,15 +1,15 @@
 """
-Defines models and enumerations related to user information in the TikTok API.
+Defines models and enumerations related to user data in the TikTok API.
 """
 
 from enum import StrEnum
 from pydantic import BaseModel, Field
-from TikTok.Types.Common import ResponseErrorModel
-from TikTok.Types.BaseModels import NoExtraFieldsBaseModel
-from TikTok.Types.OAuth2 import AuthorizationHeaderModel
+from TikTok.ValidationModels.Common import ResponseErrorModel
+from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
+from TikTok.ValidationModels.OAuth2 import AuthorizationHeaderModel
 
 
-class QueryFields(StrEnum):
+class UserInfoQueryFields(StrEnum):
     """
     Enumeration of query fields for user information.
 
@@ -34,10 +34,47 @@ class QueryFields(StrEnum):
     video_count = "video_count"
 
 
-RequestHeadersModel = AuthorizationHeaderModel
+class LikedVideosQueryFields(StrEnum):
+    """
+    Enumeration of query fields for liked videos.
+
+    Attributes:
+        id (int64): The unique identifier of the TikTok video.
+        create_time (int64): UTC Unix epoch (in seconds) of when the TikTok video was posted.
+        username (str): The username as the unique identifier of the video creator.
+        region_code (str): A two digit code for the country where the video creator registered their account.
+        video_description (str): The description of the liked video.
+        music_id (int64): The music ID used in the video.
+        like_count (int64): The number of likes the video has received.
+        comment_count (int64): The number of comments the video has received.
+        share_count (int64): The number of shares the video has received.
+        view_count (int64): The number of views the video has received.
+        hashtag_names (list[str]): The list of hashtags used in the video.
+        video_duration (int64): The duration of the video, in seconds.
+        is_stem_verified (bool): Whether the video has been verified as being high quality STEM content.
+        favorites_count (int64): The number of favorites that a video receives.
+    """
+
+    id = "id"
+    create_time = "create_time"
+    username = "username"
+    region_code = "region_code"
+    video_description = "video_description"
+    music_id = "music_id"
+    like_count = "like_count"
+    comment_count = "comment_count"
+    share_count = "share_count"
+    view_count = "view_count"
+    hashtag_names = "hashtag_names"
+    video_duration = "video_duration"
+    is_stem_verified = "is_stem_verified"
+    favorites_count = "favorites_count"
 
 
-class ResponseDataModel(NoExtraFieldsBaseModel):
+UserInfoRequestHeadersModel = AuthorizationHeaderModel
+
+
+class UserInfoResponseDataModel(NoExtraFieldsBaseModel):
     """
     Model for user data in the API response.
 
@@ -79,7 +116,7 @@ class ResponseDataModel(NoExtraFieldsBaseModel):
     )
 
 
-class InfoRequestModel(NoExtraFieldsBaseModel):
+class UserInfoRequestModel(NoExtraFieldsBaseModel):
     """
     Model for the user info request.
 
@@ -90,7 +127,7 @@ class InfoRequestModel(NoExtraFieldsBaseModel):
     username: str = Field(description="Username as the unique identifier")
 
 
-class InfoResponseModel(BaseModel):
+class UserInfoResponseModel(BaseModel):
     """
     Model for the complete API response for user information.
 
@@ -99,5 +136,5 @@ class InfoResponseModel(BaseModel):
         error (ResponseErrorModel): Error information, if any.
     """
 
-    data: ResponseDataModel
+    data: UserInfoResponseDataModel
     error: ResponseErrorModel

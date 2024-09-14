@@ -6,7 +6,7 @@ It includes enumerations and models that encapsulate the base API configuration 
 
 from enum import StrEnum
 from pydantic import HttpUrl
-from TikTok.Types.BaseModels import NoExtraFieldsBaseModel
+from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
 
 
 class BaseAPI(StrEnum):

@@ -11,7 +11,7 @@ with the API.
 from enum import StrEnum
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
-from TikTok.Types.BaseModels import NoExtraFieldsBaseModel, HeadersModel
+from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel, HeadersModel
 
 
 class OAuth2GrantType(StrEnum):

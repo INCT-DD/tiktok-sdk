@@ -6,7 +6,7 @@ consistency and clarity in error handling across different endpoints.
 """
 
 from pydantic import Field
-from TikTok.Types.BaseModels import NoExtraFieldsBaseModel
+from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
 
 
 class ResponseErrorModel(NoExtraFieldsBaseModel):
