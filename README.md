@@ -33,18 +33,20 @@ For example, to retrieve information about a user, you can use the following cod
 
 ```python
 from TikTok.Query import Query
-from TikTok.Types.User import QueryFields as UserQueryFields
+from TikTok.ValidationModels.User import UserInfoQueryFields
 
 query = Query(auth)
 
-user_info = await query.user(
-    username="USERNAME",
-    fields=[
-        UserQueryFields.display_name,
-        UserQueryFields.biography,
-        UserQueryFields.id,
-    ],
-)
+    user_info = await query.user.info(
+        username="example_username",
+        fields=[
+            UserInfoQueryFields.display_name,
+            UserInfoQueryFields.follower_count,
+            UserInfoQueryFields.following_count,
+            UserInfoQueryFields.video_count,
+            UserInfoQueryFields.likes_count,
+        ],
+    )
 
 print(user_info)
 ```
