@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.2.1 (2024-09-16)
+
+### Fix
+
+* fix(deps): update dependency setuptools to v75.1.0 ([`d0fe855`](https://github.com/INCT-DD/tiktok-sdk/commit/d0fe855c14ad5c0c857521fe3c5a66661023bfdf))
+
 ## v0.2.0 (2024-09-16)
 
 ### Ci
