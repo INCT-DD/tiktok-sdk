@@ -1,7 +1,10 @@
 """
-Defines the structure and configuration for interacting with the TikTok API.
+Defines the structure and configuration of the TikTok API.
 
-It includes enumerations and models that encapsulate the base API configuration and specific API endpoints.
+This module includes enumerations and models that encapsulate the base API configuration,
+specific API endpoints, and their respective URLs for interacting with the TikTok API.
+It serves as a foundation for making requests to the TikTok API, ensuring a structured
+and consistent approach to accessing API resources.
 """
 
 from enum import StrEnum
