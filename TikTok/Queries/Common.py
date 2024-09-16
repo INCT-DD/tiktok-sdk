@@ -1,3 +1,15 @@
+"""
+This module contains the QueryClass, which serves as a base class for handling common API queries.
+
+The QueryClass is designed to encapsulate shared functionality and attributes for subclasses that interact 
+with the TikTok API. It provides a reference to the parent Query instance, allowing subclasses to access 
+authentication and endpoint information.
+
+Usage:
+    Subclasses can inherit from QueryClass to implement specific API query methods, ensuring 
+    consistent handling of API requests and responses.
+"""
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

@@ -1,7 +1,11 @@
 """
 Provides the `Query` class, which facilitates interaction with the TikTok API.
 
-The `Query` class is designed to work with an OAuth2 authentication instance and an asynchronous HTTP client 
+The `Query` class acts as a façade for accessing various underlying query classes that handle specific API requests. 
+To understand the available methods and functionalities, users should refer to the class variables that represent 
+these underlying query classes.
+
+This class is designed to work with an OAuth2 authentication instance and an asynchronous HTTP client 
 to perform various API requests, such as retrieving user and playlist information. The module also handles 
 error logging and exception management.
 
@@ -29,7 +33,7 @@ Usage:
     query = Query(auth)
     ```
 
-    3. Retrieve information:
+    3. Retrieve user information:
     
     ```python
     from TikTok.ValidationModels.User import UserInfoQueryFields
@@ -43,6 +47,15 @@ Usage:
             UserInfoQueryFields.video_count,
             UserInfoQueryFields.likes_count,
         ],
+    )
+    ```
+
+    4. Retrieve playlist information:
+    
+    ```python
+    playlist_info = await query.playlist.info(
+        playlist_id=123456,
+        cursor=None,
     )
     ```
 """
