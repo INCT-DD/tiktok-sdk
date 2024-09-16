@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.2.0 (2024-09-16)
+
+### Ci
+
+* ci: semantic release tags ([`0f200bf`](https://github.com/INCT-DD/tiktok-sdk/commit/0f200bf3250d43bf988148f9fc442f6b0174eb48))
+
+### Documentation
+
+* docs: update namespace documentation ([`f805770`](https://github.com/INCT-DD/tiktok-sdk/commit/f80577048e1322c1e4c906b1fd14c34d12d27f97))
+
+* docs: update docstrings on relevant modules ([`dd9d97e`](https://github.com/INCT-DD/tiktok-sdk/commit/dd9d97e7ff993ea5548836f2fecb5a2d57fbbcc0))
+
+* docs: update readme ([`392141d`](https://github.com/INCT-DD/tiktok-sdk/commit/392141d4f038466bd380c4be615336e914f31b1e))
+
+### Feature
+
+* feat: implement query for liked videos ([`b9ed368`](https://github.com/INCT-DD/tiktok-sdk/commit/b9ed368d35d4698dfc187d35d40be23ec0ab7d56))
+
+### Fix
+
+* fix(deps): update dependency setuptools to v75 (#14)
+
+Co-authored-by: renovate[bot] &lt;29139614+renovate[bot]@users.noreply.github.com&gt; ([`17e726e`](https://github.com/INCT-DD/tiktok-sdk/commit/17e726efa3db9f71bf57d4c6508c3d6da2606878))
+
+### Refactor
+
+* refactor: separate queries into their own classes ([`e272cae`](https://github.com/INCT-DD/tiktok-sdk/commit/e272caeae00a3f66bf99ddee583421b72d6275e3))
+
 ## v0.1.2 (2024-09-14)
 
 ### Fix
