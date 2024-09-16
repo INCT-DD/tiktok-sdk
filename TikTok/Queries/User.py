@@ -75,3 +75,66 @@ class UserQueries(QueryClass):
                 f"An unknown exception occurred while querying the TikTok API: {e}"
             )
             raise e
+
+    async def liked_videos(
+        self,
+        username: str,
+        fields: list[User.UserLikedVideosQueryFields],
+        max_count: int | None = None,
+        cursor: int | None = None,
+    ) -> User.UserLikedVideosResponseModel:
+        """
+        Retrieves a list of videos liked by the specified TikTok user.
+
+        Parameters:
+            username (str): The username of the TikTok user whose liked videos are to be retrieved.
+            fields (list[User.UserLikedVideosQueryFields]): A list of fields to retrieve from the API.
+            max_count (int | None): The maximum number of liked videos to retrieve. Defaults to None.
+            cursor (int | None): A cursor for pagination, allowing retrieval of additional liked videos. Defaults to None.
+
+        Returns:
+            User.UserLikedVideosResponseModel: The response data model containing the user's liked videos.
+
+        Raises:
+            QueryException: If the API query fails or returns an error.
+            ValidationError: If the response body is invalid according to the expected model.
+            Exception: For any other unexpected errors that may occur during the API request.
+        """
+        headers = User.UserLikedVideosRequestHeadersModel(
+            authorization=await self.query.auth.get_access_token()
+        )
+        try:
+            response: httpx.Response = await self.query.client.post(
+                url=self.query.endpoints.UserLikedVideosURL,
+                headers=headers.model_dump(by_alias=True),
+                params={"fields": fields},
+                json=User.UserLikedVideosRequestModel(
+                    username=username,
+                    max_count=max_count,
+                    cursor=cursor,
+                ).model_dump(exclude_none=True),
+            )
+            logger.info(response.status_code)
+            logger.info(response.json())
+            if response.status_code != 200:
+                error_message: dict[str, str] = orjson.loads(response.text)
+
+                logger.error(
+                    f"The attempted query failed with the status code: {response.status_code} because {error_message['error']['message']}"
+                )
+                raise QueryException(
+                    f"TikTok API query failed because {error_message['error']['message']}"
+                )
+            return User.UserLikedVideosResponseModel(**orjson.loads(response.content))
+        except QueryException as e:
+            raise e
+        except ValidationError as e:
+            logger.error(
+                f"The attempted query failed because the response body was invalid: {e}"
+            )
+            raise e
+        except Exception as e:
+            logger.error(
+                f"An unknown exception occurred while querying the TikTok API: {e}"
+            )
+            raise e
