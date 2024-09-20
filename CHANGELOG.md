@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.4.0 (2024-09-20)
+
+### Documentation
+
+* docs: fix module docs ([`e7bb2a9`](https://github.com/INCT-DD/tiktok-sdk/commit/e7bb2a92b44f5a7badd9fd683d197d3dbcc6b7d5))
+
+### Feature
+
+* feat: add query for reposted videos ([`9c2c96d`](https://github.com/INCT-DD/tiktok-sdk/commit/9c2c96d2b8e6d5932cab5f5f94dd36d215207b93))
+
 ## v0.3.0 (2024-09-20)
 
 ### Documentation
