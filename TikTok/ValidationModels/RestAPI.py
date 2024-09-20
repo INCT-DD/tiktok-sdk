@@ -54,6 +54,9 @@ class APIEndpoints(NoExtraFieldsBaseModel):
     UserPinnedVideosURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/pinned_videos/"
     )
+    UserRepostedVideosURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/reposted_videos/"
+    )
     PlaylistInfoURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/playlist/info/"
     )
