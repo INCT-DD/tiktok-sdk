@@ -37,6 +37,17 @@ class UserInfoQueryFields(StrEnum):
 UserInfoRequestHeadersModel = AuthorizationHeaderModel
 
 
+class UserDataRequestHeadersModel(AuthorizationHeaderModel):
+    """
+    Model for request headers specific to user data requests.
+
+    Attributes:
+        content_type (str): The content type of the request, defaulting to "application/json".
+    """
+
+    content_type: str = Field(default="application/json", alias="Content-Type")
+
+
 class UserInfoResponseDataModel(NoExtraFieldsBaseModel):
     """
     Model for user data in the API response.
@@ -103,7 +114,7 @@ class UserInfoResponseModel(BaseModel):
     error: ResponseErrorModel
 
 
-class UserLikedVideosQueryFields(StrEnum):
+class UserVideosQueryFields(StrEnum):
     """
     Enumeration of query fields for liked videos.
 
@@ -140,17 +151,6 @@ class UserLikedVideosQueryFields(StrEnum):
     favorites_count = "favorites_count"
 
 
-class UserLikedVideosRequestHeadersModel(AuthorizationHeaderModel):
-    """
-    Model for request headers specific to liked videos requests.
-
-    Attributes:
-        content_type (str): The content type of the request, defaulting to "application/json".
-    """
-
-    content_type: str = Field(default="application/json", alias="Content-Type")
-
-
 class UserLikedVideosRequestModel(NoExtraFieldsBaseModel):
     """
     Model for the request to retrieve liked videos of a user.
@@ -177,7 +177,18 @@ class UserLikedVideosRequestModel(NoExtraFieldsBaseModel):
     )
 
 
-class UserLikedVideosDataModel(BaseModel):
+class UserPinnedVideosRequestModel(NoExtraFieldsBaseModel):
+    """
+    Model for the request to retrieve pinned videos of a user.
+
+    Attributes:
+        username (str): The unique identifier of the user whose pinned videos are to be fetched.
+    """
+
+    username: str = Field(description="Username as the unique identifier")
+
+
+class UserVideosDataModel(BaseModel):
     """
     Model representing liked video data response data in the API response.
 
@@ -260,8 +271,21 @@ class UserLikedVideosResponseDataModel(BaseModel):
         description="Retrieve liked videos starting from the specified Unix timestamp in UTC seconds"
     )
     has_more: bool = Field(description="Whether there are more liked videos or not")
-    user_liked_videos: list[UserLikedVideosDataModel] = Field(
+    user_liked_videos: list[UserVideosDataModel] = Field(
         description="The list of liked videos"
+    )
+
+
+class UserPinnedVideosResponseDataModel(BaseModel):
+    """
+    Model for the response data of pinned videos.
+
+    Attributes:
+        pinned_videos_list (list[UserVideosDataModel]): A list of data models containing information about the user's pinned videos.
+    """
+
+    pinned_videos_list: list[UserVideosDataModel] = Field(
+        description="A list of video objects that match the query"
     )
 
 
@@ -274,5 +298,18 @@ class UserLikedVideosResponseModel(BaseModel):
         error (ResponseErrorModel): Error information, if any.
     """
 
-    data: UserLikedVideosDataModel
+    data: UserVideosDataModel
+    error: ResponseErrorModel
+
+
+class UserPinnedVideosResponseModel(BaseModel):
+    """
+    Model for the complete API response for pinned videos.
+
+    Attributes:
+        data (UserPinnedVideosDataModel): The returned list of pinned video objects.
+        error (ResponseErrorModel): Error information, if any.
+    """
+
+    data: UserPinnedVideosResponseDataModel
     error: ResponseErrorModel

@@ -79,7 +79,7 @@ class UserQueries(QueryClass):
     async def liked_videos(
         self,
         username: str,
-        fields: list[User.UserLikedVideosQueryFields],
+        fields: list[User.UserVideosQueryFields],
         max_count: int | None = None,
         cursor: int | None = None,
     ) -> User.UserLikedVideosResponseModel:
@@ -100,7 +100,7 @@ class UserQueries(QueryClass):
             ValidationError: If the response body is invalid according to the expected model.
             Exception: For any other unexpected errors that may occur during the API request.
         """
-        headers = User.UserLikedVideosRequestHeadersModel(
+        headers = User.UserDataRequestHeadersModel(
             authorization=await self.query.auth.get_access_token()
         )
         try:
@@ -126,6 +126,59 @@ class UserQueries(QueryClass):
                     f"TikTok API query failed because {error_message['error']['message']}"
                 )
             return User.UserLikedVideosResponseModel(**orjson.loads(response.content))
+        except QueryException as e:
+            raise e
+        except ValidationError as e:
+            logger.error(
+                f"The attempted query failed because the response body was invalid: {e}"
+            )
+            raise e
+        except Exception as e:
+            logger.error(
+                f"An unknown exception occurred while querying the TikTok API: {e}"
+            )
+            raise e
+
+    async def pinned_videos(
+        self, username: str, fields: list[User.UserVideosQueryFields]
+    ) -> User.UserPinnedVideosResponseModel:
+        """
+        Retrieves a list of videos pinned by the specified TikTok user.
+
+        Parameters:
+            username (str): The username of the TikTok user whose pinned videos are to be retrieved.
+            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
+
+        Returns:
+            User.UserPinnedVideosResponseModel: The response data model containing the user's pinned videos.
+
+        Raises:
+            QueryException: If the API query fails or returns an error.
+            ValidationError: If the response body is invalid according to the expected model.
+            Exception: For any other unexpected errors that may occur during the API request.
+        """
+        headers = User.UserDataRequestHeadersModel(
+            authorization=await self.query.auth.get_access_token()
+        )
+        try:
+            response: httpx.Response = await self.query.client.post(
+                url=self.query.endpoints.UserPinnedVideosURL,
+                headers=headers.model_dump(by_alias=True),
+                params={"fields": fields},
+                json=User.UserPinnedVideosRequestModel(
+                    username=username,
+                ).model_dump(),
+            )
+            if response.status_code != 200:
+                error_message: dict[str, str] = orjson.loads(response.text)
+
+                logger.error(
+                    f"The attempted query failed with the status code: {response.status_code} because {error_message['error']['message']}"
+                )
+                raise QueryException(
+                    f"TikTok API query failed because {error_message['error']['message']}"
+                )
+            return User.UserPinnedVideosResponseModel(**orjson.loads(response.content))
         except QueryException as e:
             raise e
         except ValidationError as e:
