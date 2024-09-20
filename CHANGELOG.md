@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.3.0 (2024-09-20)
+
+### Documentation
+
+* docs: fix docs after refactor ([`1c6fc94`](https://github.com/INCT-DD/tiktok-sdk/commit/1c6fc94d58f0474f2f671ab841bfca444fafa983))
+
+### Feature
+
+* feat: add query for pinned user videos ([`e0daf63`](https://github.com/INCT-DD/tiktok-sdk/commit/e0daf63614446e4295bf8fee68d9c8e0fafc3efa))
+
 ## v0.2.2 (2024-09-18)
 
 ### Fix
