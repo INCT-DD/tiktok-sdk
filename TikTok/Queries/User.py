@@ -88,7 +88,7 @@ class UserQueries(QueryClass):
 
         Parameters:
             username (str): The username of the TikTok user whose liked videos are to be retrieved.
-            fields (list[User.UserLikedVideosQueryFields]): A list of fields to retrieve from the API.
+            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
             max_count (int | None): The maximum number of liked videos to retrieve. Defaults to None.
             cursor (int | None): A cursor for pagination, allowing retrieval of additional liked videos. Defaults to None.
 
