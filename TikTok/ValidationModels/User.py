@@ -188,6 +188,30 @@ class UserPinnedVideosRequestModel(NoExtraFieldsBaseModel):
     username: str = Field(description="Username as the unique identifier")
 
 
+class UserRepostedVideosRequestModel(NoExtraFieldsBaseModel):
+    """
+    Model for the request to retrieve reposted videos of a user.
+
+    Attributes:
+        username (str): The unique identifier of the user whose reposted videos are to be fetched.
+        max_count (int | None): The maximum number of reposted videos to return in a single response.
+            The default is 20, with a maximum limit of 100. The actual number of videos returned may be
+            fewer due to content moderation, deletion, or privacy settings.
+        cursor (int | None): A Unix timestamp in UTC seconds indicating that only videos created on
+            or before this time will be returned. The default value is set to the time the request is made.
+    """
+
+    username: str = Field(description="Username as the unique identifier")
+    max_count: int | None = Field(
+        default=None,
+        description="The maximum number of reposted videos in a single response. Default is 20, max is 100. It is possible that the API returns fewer videos than the max count due to content moderation outcomes, videos being deleted, marked as private by users, or more.",
+    )
+    cursor: int | None = Field(
+        default=None,
+        description="Videos created on or before this time will be returned. It is a Unix timestamp in UTC seconds. Default value is set as the time this request was made.",
+    )
+
+
 class UserVideosDataModel(BaseModel):
     """
     Model representing liked video data response data in the API response.
@@ -289,6 +313,25 @@ class UserPinnedVideosResponseDataModel(BaseModel):
     )
 
 
+class UserRepostedVideosResponseDataModel(BaseModel):
+    """
+    Model for the response data of reposted videos.
+
+    Attributes:
+        cursor (int): A Unix timestamp in UTC seconds indicating where to start retrieving reposted videos.
+        has_more (bool): Indicates whether there are more reposted videos available for retrieval.
+        reposted_videos (list[UserVideosDataModel]): A list of data models containing information about the user's reposted videos.
+    """
+
+    cursor: int = Field(
+        description="Retrieve reposted videos starting from the specified Unix timestamp in UTC seconds"
+    )
+    has_more: bool = Field(description="Whether there are more reposted videos or not")
+    reposted_videos: list[UserVideosDataModel] = Field(
+        description="The list of reposted videos"
+    )
+
+
 class UserLikedVideosResponseModel(BaseModel):
     """
     Model for the complete API response for liked videos.
@@ -312,4 +355,17 @@ class UserPinnedVideosResponseModel(BaseModel):
     """
 
     data: UserPinnedVideosResponseDataModel
+    error: ResponseErrorModel
+
+
+class UserRepostedVideosResponseModel(BaseModel):
+    """
+    Model for the complete API response for reposted videos.
+
+    Attributes:
+        data (UserRepostedVideosDataModel): The returned list of reposted video objects.
+        error (ResponseErrorModel): Error information, if any.
+    """
+
+    data: UserRepostedVideosResponseDataModel
     error: ResponseErrorModel
