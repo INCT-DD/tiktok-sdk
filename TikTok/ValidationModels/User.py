@@ -4,9 +4,7 @@ Defines models and enumerations related to user data in the TikTok API.
 
 from enum import StrEnum
 from pydantic import BaseModel, Field
-from TikTok.ValidationModels.Common import ResponseErrorModel
-from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
-from TikTok.ValidationModels.OAuth2 import AuthorizationHeaderModel
+from TikTok.ValidationModels.BaseModels import ResponseErrorModel, BaseRequestModel
 
 
 class UserInfoQueryFields(StrEnum):
@@ -34,21 +32,44 @@ class UserInfoQueryFields(StrEnum):
     video_count = "video_count"
 
 
-UserInfoRequestHeadersModel = AuthorizationHeaderModel
-
-
-class UserDataRequestHeadersModel(AuthorizationHeaderModel):
+class UserVideosQueryFields(StrEnum):
     """
-    Model for request headers specific to user data requests.
+    Enumeration of query fields for liked videos.
 
     Attributes:
-        content_type (str): The content type of the request, defaulting to "application/json".
+        id (int64): The unique identifier of the TikTok video.
+        create_time (int64): UTC Unix epoch (in seconds) of when the TikTok video was posted.
+        username (str): The username as the unique identifier of the video creator.
+        region_code (str): A two digit code for the country where the video creator registered their account.
+        video_description (str): The description of the liked video.
+        music_id (int64): The music ID used in the video.
+        like_count (int64): The number of likes the video has received.
+        comment_count (int64): The number of comments the video has received.
+        share_count (int64): The number of shares the video has received.
+        view_count (int64): The number of views the video has received.
+        hashtag_names (list[str]): The list of hashtags used in the video.
+        video_duration (int64): The duration of the video, in seconds.
+        is_stem_verified (bool): Whether the video has been verified as being high quality STEM content.
+        favorites_count (int64): The number of favorites that a video receives.
     """
 
-    content_type: str = Field(default="application/json", alias="Content-Type")
+    id = "id"
+    create_time = "create_time"
+    username = "username"
+    region_code = "region_code"
+    video_description = "video_description"
+    music_id = "music_id"
+    like_count = "like_count"
+    comment_count = "comment_count"
+    share_count = "share_count"
+    view_count = "view_count"
+    hashtag_names = "hashtag_names"
+    video_duration = "video_duration"
+    is_stem_verified = "is_stem_verified"
+    favorites_count = "favorites_count"
 
 
-class UserInfoResponseDataModel(NoExtraFieldsBaseModel):
+class UserInfoResponseDataModel(BaseRequestModel):
     """
     Model for user data in the API response.
 
@@ -90,17 +111,6 @@ class UserInfoResponseDataModel(NoExtraFieldsBaseModel):
     )
 
 
-class UserInfoRequestModel(NoExtraFieldsBaseModel):
-    """
-    Model for the user info request.
-
-    Attributes:
-        username (str): The username of the user to fetch information for.
-    """
-
-    username: str = Field(description="Username as the unique identifier")
-
-
 class UserInfoResponseModel(BaseModel):
     """
     Model for the complete API response for user information.
@@ -114,44 +124,18 @@ class UserInfoResponseModel(BaseModel):
     error: ResponseErrorModel
 
 
-class UserVideosQueryFields(StrEnum):
+class UserInfoRequestModel(BaseRequestModel):
     """
-    Enumeration of query fields for liked videos.
+    Model for the user info request.
 
     Attributes:
-        id (int64): The unique identifier of the TikTok video.
-        create_time (int64): UTC Unix epoch (in seconds) of when the TikTok video was posted.
-        username (str): The username as the unique identifier of the video creator.
-        region_code (str): A two digit code for the country where the video creator registered their account.
-        video_description (str): The description of the liked video.
-        music_id (int64): The music ID used in the video.
-        like_count (int64): The number of likes the video has received.
-        comment_count (int64): The number of comments the video has received.
-        share_count (int64): The number of shares the video has received.
-        view_count (int64): The number of views the video has received.
-        hashtag_names (list[str]): The list of hashtags used in the video.
-        video_duration (int64): The duration of the video, in seconds.
-        is_stem_verified (bool): Whether the video has been verified as being high quality STEM content.
-        favorites_count (int64): The number of favorites that a video receives.
+        username (str): The username of the user to fetch information for.
     """
 
-    id = "id"
-    create_time = "create_time"
-    username = "username"
-    region_code = "region_code"
-    video_description = "video_description"
-    music_id = "music_id"
-    like_count = "like_count"
-    comment_count = "comment_count"
-    share_count = "share_count"
-    view_count = "view_count"
-    hashtag_names = "hashtag_names"
-    video_duration = "video_duration"
-    is_stem_verified = "is_stem_verified"
-    favorites_count = "favorites_count"
+    username: str = Field(description="Username as the unique identifier")
 
 
-class UserLikedVideosRequestModel(NoExtraFieldsBaseModel):
+class UserLikedVideosRequestModel(BaseRequestModel):
     """
     Model for the request to retrieve liked videos of a user.
 
@@ -177,7 +161,7 @@ class UserLikedVideosRequestModel(NoExtraFieldsBaseModel):
     )
 
 
-class UserPinnedVideosRequestModel(NoExtraFieldsBaseModel):
+class UserPinnedVideosRequestModel(BaseRequestModel):
     """
     Model for the request to retrieve pinned videos of a user.
 
@@ -188,7 +172,7 @@ class UserPinnedVideosRequestModel(NoExtraFieldsBaseModel):
     username: str = Field(description="Username as the unique identifier")
 
 
-class UserRepostedVideosRequestModel(NoExtraFieldsBaseModel):
+class UserRepostedVideosRequestModel(BaseRequestModel):
     """
     Model for the request to retrieve reposted videos of a user.
 
