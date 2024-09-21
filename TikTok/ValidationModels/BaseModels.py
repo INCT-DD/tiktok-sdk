@@ -16,10 +16,11 @@ flexible handling of header names, ensuring that they are correctly mapped to th
 thus preventing potential issues when making requests.
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+from TikTok.ValidationModels.OAuth2 import AuthorizationHeaderModel
 
 
-class NoExtraFieldsBaseModel(BaseModel):
+class BaseRequestModel(BaseModel):
     """
     A base model that forbids extra fields during instantiation.
 
@@ -46,14 +47,28 @@ class NoExtraFieldsBaseModel(BaseModel):
 
     model_config: ConfigDict = ConfigDict(extra="forbid")
 
+    class HeadersModel(AuthorizationHeaderModel):
+        """
+        Model for request headers specific to user data requests.
 
-class HeadersModel(NoExtraFieldsBaseModel):
+        Attributes:
+            content_type (str): The content type of the request, defaulting to "application/json".
+        """
+
+        model_config: ConfigDict = ConfigDict(populate_by_name=True)
+        content_type: str = Field(default="application/json", alias="Content-Type")
+
+
+class ResponseErrorModel(BaseRequestModel):
     """
-    A model for headers that ensures only the specified fields are allowed.
+    Model for error information in the API response.
 
-    This class extends `NoExtraFieldsBaseModel` and configures it to allow
-    population by field name. It is specifically designed for headers that
-    must match the exact HTTP header names required by the API.
+    Attributes:
+        code (str): Error code.
+        message (str): Error message.
+        log_id (str): Log identifier for the error.
     """
 
-    model_config: ConfigDict = ConfigDict(populate_by_name=True)
+    code: str | None = Field(default=None)
+    message: str | None = Field(default=None)
+    log_id: str | None = Field(default=None)

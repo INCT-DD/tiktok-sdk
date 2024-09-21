@@ -4,23 +4,10 @@ Defines data models for handling playlist-related API requests and responses in 
 
 from pydantic import BaseModel, Field
 
-from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
-from TikTok.ValidationModels.Common import ResponseErrorModel
-from TikTok.ValidationModels.OAuth2 import AuthorizationHeaderModel
+from TikTok.ValidationModels.BaseModels import BaseRequestModel, ResponseErrorModel
 
 
-class RequestHeadersModel(AuthorizationHeaderModel):
-    """
-    Model for request headers, extending AuthorizationHeaderModel.
-
-    Attributes:
-        content_type (str): The content type of the request, defaulting to "application/json".
-    """
-
-    content_type: str = Field(default="application/json", alias="Content-Type")
-
-
-class InfoRequestModel(BaseModel):
+class InfoRequestModel(BaseRequestModel):
     """
     Model for the playlist info request.
 
@@ -36,7 +23,7 @@ class InfoRequestModel(BaseModel):
     )
 
 
-class ResponseDataModel(NoExtraFieldsBaseModel):
+class ResponseDataModel(BaseRequestModel):
     """
     Model for playlist data in the API response.
 

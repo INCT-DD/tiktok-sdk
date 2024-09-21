@@ -10,8 +10,7 @@ with the API.
 
 from enum import StrEnum
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
-from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel, HeadersModel
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
 class OAuth2GrantType(StrEnum):
@@ -42,7 +41,7 @@ class OAuth2TokenType(StrEnum):
     bearer = "Bearer"
 
 
-class RequestHeadersModel(HeadersModel):
+class RequestHeadersModel(BaseModel):
     """
     Model representing the request headers for OAuth2 requests.
 
@@ -57,13 +56,15 @@ class RequestHeadersModel(HeadersModel):
             "no-cache".
     """
 
+    model_config: ConfigDict = ConfigDict(populate_by_name=True)
+
     content_type: str = Field(
         default="application/x-www-form-urlencoded", alias="Content-Type"
     )
     cache_control: str = Field(default="no-cache", alias="Cache-Control")
 
 
-class AuthorizationHeaderModel(HeadersModel):
+class AuthorizationHeaderModel(BaseModel):
     """
     Model representing the authorization header for OAuth2 requests.
 
@@ -73,6 +74,8 @@ class AuthorizationHeaderModel(HeadersModel):
     Attributes:
         authorization (str): The authorization token, typically prefixed with "Bearer ".
     """
+
+    model_config: ConfigDict = ConfigDict(populate_by_name=True)
 
     authorization: str = Field(alias="Authorization")
 
@@ -94,7 +97,7 @@ class AuthorizationHeaderModel(HeadersModel):
         return f"Bearer {value}" if not value.startswith("Bearer ") else value
 
 
-class TokenRequestBodyModel(NoExtraFieldsBaseModel):
+class TokenRequestBodyModel(BaseModel):
     """
     Model representing the body of a token request for OAuth2.
 
@@ -133,7 +136,7 @@ class OAuth2ResponseModel(BaseModel):
     token_type: OAuth2TokenType
 
 
-class OAuth2Token(NoExtraFieldsBaseModel):
+class OAuth2Token(BaseModel):
     """
     Model representing an OAuth2 token.
 

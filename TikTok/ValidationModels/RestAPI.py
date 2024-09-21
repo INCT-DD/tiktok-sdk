@@ -9,7 +9,7 @@ and consistent approach to accessing API resources.
 
 from enum import StrEnum
 from pydantic import HttpUrl
-from TikTok.ValidationModels.BaseModels import NoExtraFieldsBaseModel
+from TikTok.ValidationModels.BaseModels import BaseRequestModel
 
 
 class BaseAPI(StrEnum):
@@ -29,7 +29,7 @@ class BaseAPI(StrEnum):
     api_version: str = "v2"
 
 
-class APIEndpoints(NoExtraFieldsBaseModel):
+class APIEndpoints(BaseRequestModel):
     """
     Model representing the API endpoints for the TikTok API.
 
@@ -56,6 +56,12 @@ class APIEndpoints(NoExtraFieldsBaseModel):
     )
     UserRepostedVideosURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/reposted_videos/"
+    )
+    UserFollowingURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/following/"
+    )
+    UserFollowersURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/followers/"
     )
     PlaylistInfoURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/playlist/info/"
