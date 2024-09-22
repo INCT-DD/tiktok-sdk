@@ -14,7 +14,7 @@ import httpx
 import orjson
 import structlog
 from pydantic import ValidationError, BaseModel
-from cytoolz import curry, valfilter
+from cytoolz import valfilter
 from typing import TYPE_CHECKING, TypeVar, Generic, Type, Any
 
 from TikTok.Exceptions.Query import QueryException
@@ -45,7 +45,6 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
         """
         self.query = query
 
-    @curry
     async def _fetch_data(
         self,
         url: str,
@@ -74,9 +73,11 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
             ValidationError: If the response body is invalid according to the expected model.
             Exception: For any other unexpected errors that may occur during the API request.
         """
-        headers = request_model_class.HeadersModel(
-            authorization=await self.query.auth.get_access_token()
-        ).model_dump(by_alias=True)
+        headers: httpx.Headers = httpx.Headers(
+            request_model_class.HeadersModel(
+                authorization=await self.query.auth.get_access_token()
+            ).model_dump(by_alias=True)
+        )
 
         try:
             response: httpx.Response = await self.query.client.post(
@@ -87,24 +88,24 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                     exclude_none=True
                 ),
             )
+            # Whoever made the TikTok API return correct data on 500 status codes should be ashamed of themselves
+            # This behavior happens mainly on the Playlist Info endpoint, which I never saw return a single 200 status code before
+            if response.is_error and response.status_code < 500:
+                response.raise_for_status()
             try:
                 return response_model_class(**orjson.loads(response.content))
-            except ValidationError as _:
+            except ValidationError:
                 error_message: dict[str, Any] = orjson.loads(response.text)
-                logger.error(
-                    f"API query failed with status {response.status_code}: {error_message['error']['message']}"
+                reason: str = (
+                    error_message["error"]["code"]
+                    if "code" in error_message["error"]
+                    else error_message["error"]["message"]
                 )
-                raise QueryException(
-                    f"TikTok API query failed because {error_message['error']['message']}"
-                )
-        except QueryException as e:
-            raise e
-        except ValidationError as e:
-            logger.error(f"Invalid response body: {e}")
-            raise e
-        except Exception as e:
-            logger.error(f"Unknown exception during API query: {e}")
-            raise e
+                logger.error(f"TikTok API query failed: {reason}")
+                raise QueryException(f"TikTok API query failed: {reason}")
+        except httpx.HTTPError as e:
+            logger.error(f"HTTP error during API query: {e}")
+            raise
 
     def _build_json_data(self, json_data: dict[str, Any]) -> dict[str, Any]:
         """
