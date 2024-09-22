@@ -145,6 +145,8 @@ class PaginatedUserInfoRequestModel(BaseUserInfoRequestModel):
     """
 
     max_count: int | None = Field(
+        gt=0,
+        le=100,
         default=None,
         description="The maximum number of results in a single response. Default is 20, max is 100. It is possible that the API returns fewer results than the max count due to content moderation outcomes, data being deleted, marked as private by users, or more.",
     )
