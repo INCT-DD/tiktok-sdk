@@ -21,9 +21,9 @@ class PlaylistQueries(QueryClass):
             Playlist.ResponseDataModel: The response data model containing playlist information.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         return await self._fetch_data(
             url=self.query.endpoints.PlaylistInfoURL,

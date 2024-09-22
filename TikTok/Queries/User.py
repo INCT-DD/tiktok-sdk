@@ -29,15 +29,15 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             User.UserInfoResponseDataModel: The response data model containing user information.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserInfoURL,
-            request_model_class=User.UserInfoRequestModel,
+            request_model_class=User.BaseUserInfoRequestModel,
             response_model_class=User.UserInfoResponseModel,
-            params={"fields": fields},
+            params=self._build_params(fields),
             json_data={"username": username},
         )
 
@@ -61,15 +61,15 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             User.UserLikedVideosResponseModel: The response data model containing the user's liked videos.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserLikedVideosURL,
-            request_model_class=User.UserLikedVideosRequestModel,
+            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserLikedVideosResponseModel,
-            params={"fields": fields},
+            params=self._build_params(fields),
             json_data=self._build_json_data(
                 {
                     "username": username,
@@ -93,15 +93,15 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             User.UserPinnedVideosResponseModel: The response data model containing the user's pinned videos.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserPinnedVideosURL,
-            request_model_class=User.UserPinnedVideosRequestModel,
+            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserPinnedVideosResponseModel,
-            params={"fields": fields},
+            params=self._build_params(fields),
             json_data={"username": username},
         )
 
@@ -125,15 +125,85 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             User.UserRepostedVideosResponseModel: The response data model containing the user's reposted videos.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserRepostedVideosURL,
-            request_model_class=User.UserRepostedVideosRequestModel,
+            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserRepostedVideosResponseModel,
-            params={"fields": fields},
+            params=self._build_params(fields),
+            json_data=self._build_json_data(
+                {
+                    "username": username,
+                    "max_count": max_count,
+                    "cursor": cursor,
+                }
+            ),
+        )
+
+    async def followers(
+        self,
+        username: str,
+        max_count: int | None = None,
+        cursor: int | None = None,
+    ) -> User.UserFollowersResponseModel:
+        """
+        Retrieves a list of followers for the specified TikTok user.
+
+        Parameters:
+            username (str): The username of the TikTok user whose followers are to be retrieved.
+            max_count (int | None): The maximum number of followers to retrieve. Defaults to None.
+            cursor (int | None): A cursor for pagination, allowing retrieval of additional followers. Defaults to None.
+
+        Returns:
+            User.UserFollowersResponseModel: The response data model containing the user's followers.
+
+        Raises:
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        """
+        return await self._fetch_data(
+            url=self.query.endpoints.UserFollowersURL,
+            request_model_class=User.PaginatedUserInfoRequestModel,
+            response_model_class=User.UserFollowersResponseModel,
+            json_data=self._build_json_data(
+                {
+                    "username": username,
+                    "max_count": max_count,
+                    "cursor": cursor,
+                }
+            ),
+        )
+
+    async def following(
+        self,
+        username: str,
+        max_count: int | None = None,
+        cursor: int | None = None,
+    ) -> User.UserFollowingResponseModel:
+        """
+        Retrieves a list of users the specified TikTok user is following.
+
+        Parameters:
+            username (str): The username of the TikTok user whose following are to be retrieved.
+            max_count (int | None): The maximum number of users to retrieve. Defaults to None.
+            cursor (int | None): A cursor for pagination, allowing retrieval of additional users. Defaults to None.
+
+        Returns:
+            User.UserFollowingResponseModel: The response data model containing the user's following.
+
+        Raises:
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        """
+        return await self._fetch_data(
+            url=self.query.endpoints.UserFollowingURL,
+            request_model_class=User.PaginatedUserInfoRequestModel,
+            response_model_class=User.UserFollowingResponseModel,
             json_data=self._build_json_data(
                 {
                     "username": username,

@@ -124,7 +124,7 @@ class UserInfoResponseModel(BaseModel):
     error: ResponseErrorModel
 
 
-class UserInfoRequestModel(BaseRequestModel):
+class BaseUserInfoRequestModel(BaseRequestModel):
     """
     Model for the user info request.
 
@@ -135,64 +135,22 @@ class UserInfoRequestModel(BaseRequestModel):
     username: str = Field(description="Username as the unique identifier")
 
 
-class UserLikedVideosRequestModel(BaseRequestModel):
+class PaginatedUserInfoRequestModel(BaseUserInfoRequestModel):
     """
-    Model for the request to retrieve liked videos of a user.
-
-    This model encapsulates the parameters required to fetch the liked videos for a specific user on TikTok.
+    Model for the paginated user info request.
 
     Attributes:
-        username (str): The unique identifier of the user whose liked videos are to be fetched.
-        max_count (int | None): The maximum number of liked videos to return in a single response.
-            The default is 20, with a maximum limit of 100. The actual number of videos returned may be
-            fewer due to content moderation, deletion, or privacy settings.
-        cursor (int | None): A Unix timestamp in UTC seconds indicating that only videos created on
-            or before this time will be returned. The default value is set to the time the request is made.
+        max_count (int | None): The maximum number of users to return in a single response.
+        cursor (int | None): A cursor for pagination, allowing retrieval of additional users.
     """
 
-    username: str = Field(description="Username as the unique identifier")
     max_count: int | None = Field(
         default=None,
-        description="The maximum number of liked videos in a single response. Default is 20, max is 100. It is possible that the API returns fewer videos than the max count due to content moderation outcomes, videos being deleted, marked as private by users, or more.",
+        description="The maximum number of results in a single response. Default is 20, max is 100. It is possible that the API returns fewer results than the max count due to content moderation outcomes, data being deleted, marked as private by users, or more.",
     )
     cursor: int | None = Field(
         default=None,
-        description="Videos created on or before this time will be returned. It is a Unix timestamp in UTC seconds. Default value is set as the time this request was made.",
-    )
-
-
-class UserPinnedVideosRequestModel(BaseRequestModel):
-    """
-    Model for the request to retrieve pinned videos of a user.
-
-    Attributes:
-        username (str): The unique identifier of the user whose pinned videos are to be fetched.
-    """
-
-    username: str = Field(description="Username as the unique identifier")
-
-
-class UserRepostedVideosRequestModel(BaseRequestModel):
-    """
-    Model for the request to retrieve reposted videos of a user.
-
-    Attributes:
-        username (str): The unique identifier of the user whose reposted videos are to be fetched.
-        max_count (int | None): The maximum number of reposted videos to return in a single response.
-            The default is 20, with a maximum limit of 100. The actual number of videos returned may be
-            fewer due to content moderation, deletion, or privacy settings.
-        cursor (int | None): A Unix timestamp in UTC seconds indicating that only videos created on
-            or before this time will be returned. The default value is set to the time the request is made.
-    """
-
-    username: str = Field(description="Username as the unique identifier")
-    max_count: int | None = Field(
-        default=None,
-        description="The maximum number of reposted videos in a single response. Default is 20, max is 100. It is possible that the API returns fewer videos than the max count due to content moderation outcomes, videos being deleted, marked as private by users, or more.",
-    )
-    cursor: int | None = Field(
-        default=None,
-        description="Videos created on or before this time will be returned. It is a Unix timestamp in UTC seconds. Default value is set as the time this request was made.",
+        description="Results created on or before this time will be returned. It is a Unix timestamp in UTC seconds. Default value is set as the time this request was made.",
     )
 
 
@@ -316,6 +274,57 @@ class UserRepostedVideosResponseDataModel(BaseModel):
     )
 
 
+class UserFollowDataModel(BaseModel):
+    """
+    Model for the response data of user follow.
+
+    Attributes:
+        display_name (str): The profile name of the user.
+        username (str): The username of the user.
+    """
+
+    display_name: str = Field(description="The profile name of the user.")
+    username: str = Field(description="The username of the user.")
+
+
+class UserFollowersResponseDataModel(BaseModel):
+    """
+    Model for the response data of user followers.
+
+    Attributes:
+        cursor (int): A Unix timestamp in UTC seconds indicating where to start retrieving follower data.
+        has_more (bool): Indicates whether there are more follower data available for retrieval.
+        user_followers (list[UserFollowDataModel]): A list of data models containing information about the user's followers.
+    """
+
+    cursor: int = Field(
+        description="Retrieve follower data starting from the specified Unix timestamp in UTC seconds"
+    )
+    has_more: bool = Field(description="Whether there are more follower data or not")
+    user_followers: list[UserFollowDataModel] = Field(
+        description="The list of user follower data"
+    )
+
+
+class UserFollowingResponseDataModel(BaseModel):
+    """
+    Model for the response data of user following.
+
+    Attributes:
+        cursor (int): A Unix timestamp in UTC seconds indicating where to start retrieving following data.
+        has_more (bool): Indicates whether there are more following data available for retrieval.
+        user_following (list[UserFollowDataModel]): A list of data models containing information about the user's following.
+    """
+
+    cursor: int = Field(
+        description="Retrieve following data starting from the specified Unix timestamp in UTC seconds"
+    )
+    has_more: bool = Field(description="Whether there are more following data or not")
+    user_following: list[UserFollowDataModel] = Field(
+        description="The list of user following data"
+    )
+
+
 class UserLikedVideosResponseModel(BaseModel):
     """
     Model for the complete API response for liked videos.
@@ -352,4 +361,30 @@ class UserRepostedVideosResponseModel(BaseModel):
     """
 
     data: UserRepostedVideosResponseDataModel
+    error: ResponseErrorModel
+
+
+class UserFollowersResponseModel(BaseModel):
+    """
+    Model for the complete API response for user followers.
+
+    Attributes:
+        data (UserFollowersDataModel): The returned list of follower data.
+        error (ResponseErrorModel): Error information, if any.
+    """
+
+    data: UserFollowersResponseDataModel
+    error: ResponseErrorModel
+
+
+class UserFollowingResponseModel(BaseModel):
+    """
+    Model for the complete API response for user following.
+
+    Attributes:
+        data (UserFollowingDataModel): The returned list of following data.
+        error (ResponseErrorModel): Error information, if any.
+    """
+
+    data: UserFollowingResponseDataModel
     error: ResponseErrorModel

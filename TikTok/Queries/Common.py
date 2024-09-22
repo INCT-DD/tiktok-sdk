@@ -69,9 +69,9 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
             ResponseModel: An instance of the response_model_class containing the API response data.
 
         Raises:
-            QueryException: If the API query fails or returns an error.
-            ValidationError: If the response body is invalid according to the expected model.
-            Exception: For any other unexpected errors that may occur during the API request.
+            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
+            pydantic.ValidationError: If the response body is invalid according to the expected model.
+            httpx.HTTPError: For any HTTP errors that may occur during the API request.
         """
         headers: httpx.Headers = httpx.Headers(
             request_model_class.HeadersModel(
@@ -128,3 +128,15 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
             TypeError: If the input data is not a dictionary.
         """
         return valfilter(lambda x: x is not None, json_data)
+
+    def _build_params(self, params: list[str]) -> str:
+        """
+        Converts a list of values into a comma-separated string.
+
+        Parameters:
+            params (list[str]): The list of values to be converted into a comma-separated string.
+
+        Returns:
+            str: A comma-separated string of the input values.
+        """
+        return {"fields": ",".join(params)}

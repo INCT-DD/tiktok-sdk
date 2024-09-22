@@ -85,7 +85,7 @@ class OAuth2:
             None
 
         Raises:
-            AuthException: If the request fails or the response is invalid.
+            TikTok.Exceptions.Auth.AuthException: If the request fails or the response is invalid.
         """
         token_file: Path = Path("token.pkl")
 
