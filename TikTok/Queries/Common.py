@@ -131,14 +131,14 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
         """
         return valfilter(lambda x: x is not None, json_data)
 
-    def _build_params(self, params: list[str]) -> str:
+    def _build_params(self, params: list[str]) -> dict[str, str]:
         """
-        Converts a list of values into a comma-separated string.
+        Converts a list of values into a dictionary with a 'fields' key and a comma-separated string value..
 
         Parameters:
             params (list[str]): The list of values to be converted into a comma-separated string.
 
         Returns:
-            str: A comma-separated string of the input values.
+            dict[str, str]: A dictionary with a 'fields' key and a comma-separated string value.
         """
         return {"fields": ",".join(params)}
