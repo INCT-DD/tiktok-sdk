@@ -1,15 +1,17 @@
-name: Python Package Release
+name: Python Package and Documentation Release
 on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    concurrency: release
-    permissions:
-      contents: write
-      id-token: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -28,4 +30,36 @@ jobs:
       uses: python-semantic-release/python-semantic-release@v9.8.8
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-docs:
+    needs: release
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup pages
+      uses: actions/configure-pages@v5
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'poetry'
+    - name: Install dependencies
+      run: poetry install --with docs
+    - name: Build docs
+      run: poetry run pdoc --html --output-dir docs TikTok
+    - name: Upload pages artifacts
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './docs/TikTok'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
     
