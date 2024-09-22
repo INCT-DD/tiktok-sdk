@@ -94,7 +94,7 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                 response.raise_for_status()
             try:
                 return response_model_class(**orjson.loads(response.content))
-            except ValidationError:
+            except ValidationError as validation_error:
                 error_message: dict[str, Any] = orjson.loads(response.text)
                 reason: str = (
                     error_message["error"]["code"]
@@ -102,7 +102,9 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                     else error_message["error"]["message"]
                 )
                 logger.error(f"TikTok API query failed: {reason}")
-                raise QueryException(f"TikTok API query failed: {reason}")
+                raise QueryException(
+                    f"TikTok API query failed: {reason}"
+                ) from validation_error
         except httpx.HTTPError as e:
             logger.error(f"HTTP error during API query: {e}")
             raise
