@@ -14,7 +14,7 @@ import httpx
 import orjson
 import structlog
 from pydantic import ValidationError, BaseModel
-from cytoolz import curry
+from cytoolz import curry, valfilter
 from typing import TYPE_CHECKING, TypeVar, Generic, Type, Any
 
 from TikTok.Exceptions.Query import QueryException
@@ -105,3 +105,25 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
         except Exception as e:
             logger.error(f"Unknown exception during API query: {e}")
             raise e
+
+    def _build_json_data(self, json_data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Constructs a JSON-compatible dictionary by filtering out None values from the input data.
+
+        This method takes a dictionary and removes any key-value pairs where the value is None,
+        ensuring that the resulting dictionary is suitable for JSON serialization.
+
+        Parameters:
+            json_data (dict[str, Any]): The input dictionary containing data to be filtered.
+
+        Returns:
+            dict[str, Any]: A new dictionary containing only the key-value pairs with non-None values.
+
+        Example:
+            >>> _build_json_data({'key1': 'value1', 'key2': None})
+            {'key1': 'value1'}
+
+        Raises:
+            TypeError: If the input data is not a dictionary.
+        """
+        return valfilter(lambda x: x is not None, json_data)

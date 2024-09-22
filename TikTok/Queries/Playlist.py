@@ -29,5 +29,10 @@ class PlaylistQueries(QueryClass):
             url=self.query.endpoints.PlaylistInfoURL,
             request_model_class=Playlist.InfoRequestModel,
             response_model_class=Playlist.InfoResponseModel,
-            json_data={"playlist_id": playlist_id, "cursor": cursor},
+            json_data=self._build_json_data(
+                {
+                    "playlist_id": playlist_id,
+                    "cursor": cursor,
+                }
+            ),
         )

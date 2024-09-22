@@ -70,11 +70,13 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             request_model_class=User.UserLikedVideosRequestModel,
             response_model_class=User.UserLikedVideosResponseModel,
             params={"fields": fields},
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data=self._build_json_data(
+                {
+                    "username": username,
+                    "max_count": max_count,
+                    "cursor": cursor,
+                }
+            ),
         )
 
     async def pinned_videos(
@@ -132,9 +134,11 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             request_model_class=User.UserRepostedVideosRequestModel,
             response_model_class=User.UserRepostedVideosResponseModel,
             params={"fields": fields},
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data=self._build_json_data(
+                {
+                    "username": username,
+                    "max_count": max_count,
+                    "cursor": cursor,
+                }
+            ),
         )
