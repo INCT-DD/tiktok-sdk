@@ -23,7 +23,7 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
 
         Parameters:
             username (str): The username of the TikTok user.
-            fields (List[User.UserInfoQueryFields]): A list of fields to retrieve from the API.
+            fields (list[User.UserInfoQueryFields]): A list of fields to retrieve from the API.
 
         Returns:
             User.UserInfoResponseDataModel: The response data model containing user information.
@@ -87,7 +87,7 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
 
         Parameters:
             username (str): The username of the TikTok user whose pinned videos are to be retrieved.
-            fields (List[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
+            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
 
         Returns:
             User.UserPinnedVideosResponseModel: The response data model containing the user's pinned videos.
@@ -117,7 +117,7 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
 
         Parameters:
             username (str): The username of the TikTok user whose reposted videos are to be retrieved.
-            fields (List[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
+            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
             max_count (int | None): The maximum number of reposted videos to retrieve. Defaults to None.
             cursor (int | None): A cursor for pagination, allowing retrieval of additional reposted videos. Defaults to None.
 
