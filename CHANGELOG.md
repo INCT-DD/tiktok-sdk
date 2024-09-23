@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.5.0 (2024-09-23)
+
+### Ci
+
+* ci: merge docs and release ([`20539c9`](https://github.com/INCT-DD/tiktok-sdk/commit/20539c9b8b7c0b099ed192f028c248176f69dd41))
+
+### Documentation
+
+* docs: fix inconsistencies in the Common.py class ([`c238de8`](https://github.com/INCT-DD/tiktok-sdk/commit/c238de8b5637dd011ad77aa49bacf8a2d6d54f36))
+
+* docs: fix improper usage of capital letter L ([`8cc3559`](https://github.com/INCT-DD/tiktok-sdk/commit/8cc3559d505ef9d4049bea0a4b49a557577c65b9))
+
+### Feature
+
+* feat: implement following and followers queries ([`0860186`](https://github.com/INCT-DD/tiktok-sdk/commit/0860186667c400ef9246c29b7301b359c0c947c6))
+
+### Fix
+
+* fix: constrain max_count ([`35a2974`](https://github.com/INCT-DD/tiktok-sdk/commit/35a2974e391d5e43ff9c15446184cf080f252423))
+
+* fix: stop obscuring ValidationErrors in the common queries ([`ad8fa31`](https://github.com/INCT-DD/tiktok-sdk/commit/ad8fa31b7110c6524261d48671c4c6490a32d3b7))
+
+* fix: exception handling on QueryClass ([`0c15b47`](https://github.com/INCT-DD/tiktok-sdk/commit/0c15b47156f7efc736b6b6ba9673f513b1067248))
+
+### Refactor
+
+* refactor: filter json_data to remove None values ([`3e98068`](https://github.com/INCT-DD/tiktok-sdk/commit/3e9806802adb2b30e74d6b116497ff1512ea626a))
+
+* refactor: streamline queries ([`88f5d1b`](https://github.com/INCT-DD/tiktok-sdk/commit/88f5d1b691fb4ef8861653d4615af9839777fca6))
+
 ## v0.4.0 (2024-09-20)
 
 ### Documentation
