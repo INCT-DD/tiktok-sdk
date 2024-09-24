@@ -142,6 +142,29 @@ class VideoLength(StrEnum):
     EXTRA_LONG = "EXTRA_LONG"
 
 
+class VideoCommentFields(StrEnum):
+    """
+    Enum representing the fields of a comment.
+
+    Attributes:
+        id (str): The unique identifier for the comment.
+        video_id (str): The identifier of the video associated with the comment.
+        text (str): The content of the comment.
+        like_count (str): The number of likes the comment has received.
+        reply_count (str): The number of replies to the comment.
+        parent_comment_id (str): The identifier of the parent comment, if applicable.
+        create_time (str): The timestamp when the comment was created.
+    """
+
+    id = "id"
+    video_id = "video_id"
+    text = "text"
+    like_count = "like_count"
+    reply_count = "reply_count"
+    parent_comment_id = "parent_comment_id"
+    create_time = "create_time"
+
+
 class Condition(BaseModel):
     """
     Represents a single condition in a TikTok video query.
@@ -690,7 +713,7 @@ class VideoDataModel(BaseModel):
     )
 
 
-class VideoSearchQueryDataModel(BaseRequestModel):
+class VideoSearchQueryDataModel(BaseModel):
     """
     Model representing the data of a TikTok video search query.
 
@@ -707,7 +730,7 @@ class VideoSearchQueryDataModel(BaseRequestModel):
     search_id: str
 
 
-class VideoQueryResponseModel(BaseRequestModel):
+class VideoQueryResponseModel(BaseModel):
     """
     Model representing the complete API response for a TikTok video search query.
 
@@ -717,4 +740,85 @@ class VideoQueryResponseModel(BaseRequestModel):
     """
 
     data: VideoSearchQueryDataModel
+    error: ResponseErrorModel
+
+
+class VideoCommentRequestModel(BaseRequestModel):
+    video_id: int = Field(
+        ..., description="The ID of the video to retrieve comments for"
+    )
+    max_count: int | None = Field(
+        default=None,
+        gt=0,
+        le=100,
+        description="The maximum number of comments to return. Default is 20, max is 100",
+    )
+    cursor: int | None = Field(
+        default=None, description="Retrieve comments starting from the specified index"
+    )
+
+
+class VideoCommentModel(BaseModel):
+    """
+    Model representing a TikTok video comment.
+
+    Attributes:
+        id (int): The unique identifier for the comment.
+        text (str): The content of the comment.
+        video_id (int): The identifier of the video associated with the comment.
+        parent_comment_id (int): The identifier of the parent comment, if the comment is a reply.
+        like_count (int): The number of likes the comment has received.
+        reply_count (int): The number of replies to the comment.
+        create_time (int): The UTC Unix epoch (in seconds) of when the comment was posted.
+    """
+
+    id: int | None = Field(
+        default=None, description="The unique identifier for the comment"
+    )
+    text: str | None = Field(default=None, description="The content of the comment")
+    video_id: int | None = Field(
+        default=None,
+        description="The identifier of the video associated with the comment",
+    )
+    parent_comment_id: int | None = Field(
+        default=None,
+        description="The identifier of the parent comment, if the comment is a reply",
+    )
+    like_count: int | None = Field(
+        default=None, description="The number of likes the comment has received"
+    )
+    reply_count: int | None = Field(
+        default=None, description="The number of replies to the comment"
+    )
+    create_time: int | None = Field(
+        default=None,
+        description="The UTC Unix epoch (in seconds) of when the comment was posted",
+    )
+
+
+class VideoCommentResponseDataModel(BaseModel):
+    """
+    Model representing the data of a TikTok video comment response.
+
+    Attributes:
+        comments (list[VideoCommentModel]): List of video comment models.
+        cursor (int): The cursor position for pagination.
+        has_more (bool): Indicates if there are more results available.
+    """
+
+    comments: list[VideoCommentModel]
+    cursor: int
+    has_more: bool
+
+
+class VideoCommentResponseModel(BaseModel):
+    """
+    Model representing the complete API response for a TikTok video comment query.
+
+    Attributes:
+        data (VideoCommentResponseDataModel): The data containing the comment results.
+        error (ResponseErrorModel): Error information, if any.
+    """
+
+    data: VideoCommentResponseDataModel
     error: ResponseErrorModel

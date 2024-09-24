@@ -76,3 +76,6 @@ class APIEndpoints(BaseRequestModel):
     VideoSearchURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/query/"
     )
+    VideoCommentsURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/comment/list/"
+    )
