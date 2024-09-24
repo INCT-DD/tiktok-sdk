@@ -3,7 +3,7 @@
 TikTok is a Python library for interacting with the TikTok Research API.
 
 This library provides a simple and efficient way to access TikTok's API endpoints,
-allowing developers to retrieve user information, video details, and other data.
+allowing developers to retrieve user information, video details, and other relevant data.
 
 TikTok is built on top of the `httpx` library, which is a powerful and flexible HTTP library,
 and uses `orjson` for efficient JSON serialization and deserialization.
@@ -50,3 +50,38 @@ query = Query(auth)
 
 print(user_info)
 ```
+
+Given the complexity of video queries, this library provides a helper class to build them.
+It introduces some level of indirection and API inconsistency, but its introduction was a deliberate design choice to help users create queries
+that are easy to understand and modify without the need to manually write the JSON object or learn a dedicated DSL.
+
+```python
+# Example: Build a query to search for videos uploaded by "example_username" between August 1st and August 2nd, 2024.
+from TikTok.Query import Query
+from TikTok.ValidationModels.Video import (
+    VideoQueryRequestBuilder,
+    VideoQueryOperation,
+    VideoQueryFieldName,
+    VideoRegionCode,
+    VideoQueryFields,
+)
+
+query = Query(auth)
+
+video_query = VideoQueryRequestBuilder()
+
+request = (
+    video_query.start_date("20240801")
+    .end_date("20240802")
+    .max_count(100)
+    .and_(VideoQueryOperation.EQ, VideoQueryFieldName.username, ["example_username"])
+    .build()
+)
+
+video_query_response = await query.video.search(
+    request=request, fields=[VideoQueryFields.id, VideoQueryFields.voice_to_text]
+)
+
+```
+
+If you are interested in learning more about the underlying API, you can find the documentation here: [https://developers.tiktok.com/doc/research-api-specs-query-videos](https://developers.tiktok.com/doc/research-api-specs-query-videos)
