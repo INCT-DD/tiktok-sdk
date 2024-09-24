@@ -88,7 +88,6 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                     by_alias=True, exclude_none=True, mode="json"
                 ),
             )
-            logger.info(response.text)
             # Whoever made the TikTok API return correct data on 500 status codes should be ashamed of themselves
             # This behavior happens mainly on the Playlist Info endpoint, which I never saw return a single 200 status code before
             if response.is_error and response.status_code < 500:
