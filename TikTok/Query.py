@@ -67,6 +67,7 @@ from TikTok.ValidationModels.RestAPI import APIEndpoints
 
 from TikTok.Queries.User import UserQueries
 from TikTok.Queries.Playlist import PlaylistQueries
+from TikTok.Queries.Video import VideoQueries
 
 logger = structlog.get_logger()
 
@@ -89,6 +90,7 @@ class Query:
     endpoints: APIEndpoints
     user: UserQueries
     playlist: PlaylistQueries
+    video: VideoQueries
 
     def __init__(self, auth: OAuth2):
         """
@@ -102,3 +104,4 @@ class Query:
         self.endpoints = APIEndpoints()
         self.user = UserQueries(self)
         self.playlist = PlaylistQueries(self)
+        self.video = VideoQueries(self)

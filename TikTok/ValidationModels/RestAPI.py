@@ -34,12 +34,19 @@ class APIEndpoints(BaseRequestModel):
     Model representing the API endpoints for the TikTok API.
 
     This model encapsulates the various endpoints used to interact with the TikTok API,
-    providing a structured way to access the URLs required for OAuth token requests and
-    user information retrieval.
+    providing a structured way to access the URLs required for OAuth token requests, user
+    information retrieval, and other actions.
 
     Attributes:
         OAuthTokenRequestURL (HttpUrl): The URL for requesting an OAuth token.
         UserInfoURL (HttpUrl): The URL for retrieving user information.
+        UserLikedVideosURL (HttpUrl): The URL for retrieving videos liked by a user.
+        UserPinnedVideosURL (HttpUrl): The URL for retrieving videos pinned by a user.
+        UserRepostedVideosURL (HttpUrl): The URL for retrieving videos reposted by a user.
+        UserFollowingURL (HttpUrl): The URL for retrieving users that a specified user is following.
+        UserFollowersURL (HttpUrl): The URL for retrieving followers of a specified user.
+        PlaylistInfoURL (HttpUrl): The URL for retrieving information about a specific playlist.
+        VideoSearchURL (HttpUrl): The URL for searching videos based on specified criteria.
     """
 
     OAuthTokenRequestURL: HttpUrl = (
@@ -65,4 +72,7 @@ class APIEndpoints(BaseRequestModel):
     )
     PlaylistInfoURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/playlist/info/"
+    )
+    VideoSearchURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/query/"
     )
