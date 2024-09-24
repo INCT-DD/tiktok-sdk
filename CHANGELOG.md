@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v1.0.0 (2024-09-24)
+
+### Breaking
+
+* feat!: implement video queries ([`07529bb`](https://github.com/INCT-DD/tiktok-sdk/commit/07529bbb60609003854910ce96305a8be9c433f0))
+
+### Documentation
+
+* docs: add video query information ([`08c7b3e`](https://github.com/INCT-DD/tiktok-sdk/commit/08c7b3e68a9514dea76fb7f73094aebc0a7d21e3))
+
+### Fix
+
+* fix: exception obscuring and complex logic ([`58491b6`](https://github.com/INCT-DD/tiktok-sdk/commit/58491b657770c9034d3eb65a534da7ac83396a53))
+
+* fix: remove debugging artifacts ([`3a7073d`](https://github.com/INCT-DD/tiktok-sdk/commit/3a7073d90bb356c55a4bfa7b35338900c425c1be))
+
 ## v0.5.0 (2024-09-23)
 
 ### Ci
