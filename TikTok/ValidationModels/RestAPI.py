@@ -47,6 +47,7 @@ class APIEndpoints(BaseRequestModel):
         UserFollowersURL (HttpUrl): The URL for retrieving followers of a specified user.
         PlaylistInfoURL (HttpUrl): The URL for retrieving information about a specific playlist.
         VideoSearchURL (HttpUrl): The URL for searching videos based on specified criteria.
+        VideoCommentsURL (HttpUrl): The URL for retrieving comments for a specific video.
     """
 
     OAuthTokenRequestURL: HttpUrl = (

@@ -56,9 +56,6 @@ class VideoQueries(QueryClass[RequestModel, ResponseModel]):
 
         Returns:
             Video.VideoCommentResponseModel: The response model containing the video comments.
-
-        Raises:
-            ValueError: If video_id is not a positive integer.
         """
         return await self._fetch_data(
             url=self.query.endpoints.VideoCommentsURL,
