@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.1.0 (2024-09-24)
+
+### Documentation
+
+* docs: fix docstrings ([`d2428f6`](https://github.com/INCT-DD/tiktok-sdk/commit/d2428f6e27d94a5a05f5ed2b1ec2a299cb6abaa6))
+
+### Feature
+
+* feat: add comment downloading ([`e868d33`](https://github.com/INCT-DD/tiktok-sdk/commit/e868d33dd01fbb58637f58bce3c927439abc520a))
+
 ## v1.0.0 (2024-09-24)
 
 ### Breaking
