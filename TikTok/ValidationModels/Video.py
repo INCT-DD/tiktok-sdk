@@ -190,27 +190,25 @@ class Condition(BaseModel):
                         raise ValueError("Username must be a non-empty string.")
             case VideoQueryFieldName.region_code:
                 for value in field_values:
-                    if isinstance(value, VideoRegionCode):
-                        continue
-                    elif (
-                        isinstance(value, str)
-                        and value in VideoRegionCode._value2member_map_
+                    if not (
+                        isinstance(value, VideoRegionCode)
+                        or (
+                            isinstance(value, str)
+                            and value in VideoRegionCode._value2member_map_
+                        )
                     ):
-                        continue
-                    else:
                         raise ValueError(
                             f"Invalid region_code: {value}. Must be a valid RegionCode."
                         )
             case VideoQueryFieldName.video_duration:
                 for value in field_values:
-                    if isinstance(value, VideoLength):
-                        continue
-                    elif (
-                        isinstance(value, str)
-                        and value in VideoLength._value2member_map_
+                    if not (
+                        isinstance(value, VideoLength)
+                        or (
+                            isinstance(value, str)
+                            and value in VideoLength._value2member_map_
+                        )
                     ):
-                        continue
-                    else:
                         raise ValueError(
                             f"Invalid video_duration: {value}. Must be one of {[e.value for e in VideoLength]}."
                         )
@@ -227,10 +225,10 @@ class Condition(BaseModel):
                             raise ValueError(
                                 f"Invalid {field_name}: {value}. Must be a positive integer."
                             )
-                    except (ValueError, TypeError):
+                    except (ValueError, TypeError) as err:
                         raise ValueError(
                             f"Invalid {field_name}: {value}. Must be a positive integer."
-                        )
+                        ) from err
             case _:
                 pass
         return values
