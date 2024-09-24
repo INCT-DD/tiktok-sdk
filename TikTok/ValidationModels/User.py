@@ -69,7 +69,7 @@ class UserVideosQueryFields(StrEnum):
     favorites_count = "favorites_count"
 
 
-class UserInfoResponseDataModel(BaseRequestModel):
+class UserInfoResponseDataModel(BaseModel):
     """
     Model for user data in the API response.
 
