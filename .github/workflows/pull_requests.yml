@@ -34,7 +34,7 @@ jobs:
         poetry lock
         poetry install
     - name: Python Semantic Release
-      uses: python-semantic-release/python-semantic-release@v9.8.8
+      uses: python-semantic-release/python-semantic-release@v9.9.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         root_options: "-vv --noop"
