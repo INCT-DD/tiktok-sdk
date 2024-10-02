@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.1.1 (2024-10-02)
+
+### Chore
+
+* chore(deps): update python-semantic-release/python-semantic-release action to v9.9.0 ([`2cf1326`](https://github.com/INCT-DD/tiktok-sdk/commit/2cf132633950e248bda9f36bbc79a33606d1b302))
+
+### Fix
+
+* fix(deps): update dependency rich to v13.9.1 ([`d146309`](https://github.com/INCT-DD/tiktok-sdk/commit/d1463093a468e02b6c2fa54f035c446fe98a91a6))
+
 ## v1.1.0 (2024-09-24)
 
 ### Documentation
