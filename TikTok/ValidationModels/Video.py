@@ -622,6 +622,7 @@ class VideoQueryRequestBuilder:
             end_date=self._end_date,
             max_count=self._max_count,
             cursor=self._cursor,
+            search_id=self._search_id,
             is_random=self._is_random,
         )
 
