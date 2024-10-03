@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.1.2 (2024-10-03)
+
+### Fix
+
+* fix: include search id on video queries ([`797e0aa`](https://github.com/INCT-DD/tiktok-sdk/commit/797e0aa2bcebdbd8d2aece9577a226911be0b2c3))
+
+### Refactor
+
+* refactor: change exception handler ([`e1db066`](https://github.com/INCT-DD/tiktok-sdk/commit/e1db06663903b200c850ad09b0ec47e7935247ac))
+
 ## v1.1.1 (2024-10-02)
 
 ### Chore
