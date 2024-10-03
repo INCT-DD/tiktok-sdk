@@ -105,9 +105,12 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                 raise QueryException(
                     f"TikTok API query failed: {reason}"
                 ) from validation_error
-        except httpx.HTTPError as e:
-            logger.error(f"HTTP error during API query: {e}")
-            raise
+        except httpx.HTTPError as http_error:
+            error_message = (
+                f"HTTP error during API query: {http_error}.\nResponse: {response.text}"
+            )
+            logger.error(error_message)
+            raise QueryException(error_message) from http_error
 
     def _build_json_data(self, json_data: dict[str, Any]) -> dict[str, Any]:
         """
