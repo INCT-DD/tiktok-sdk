@@ -16,7 +16,7 @@ rich = "13.9.2"
 stamina = "24.3.0"
 structlog = "24.4.0"
 setuptools = "75.2.0"
-cytoolz = "^1.0.0"
+cytoolz = "^0.12.3"
 
 [tool.poetry.group.docs]
 optional = true
