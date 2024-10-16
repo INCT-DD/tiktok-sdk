@@ -15,7 +15,7 @@ httpx = { extras = ["brotli", "http2", "zstd"], version = "0.27.2" }
 rich = "13.9.1"
 stamina = "24.3.0"
 structlog = "24.4.0"
-setuptools = "75.1.0"
+setuptools = "75.2.0"
 cytoolz = "^0.12.3"
 
 [tool.poetry.group.docs]
