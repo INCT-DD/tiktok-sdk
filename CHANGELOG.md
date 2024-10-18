@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v1.1.4 (2024-10-18)
+
+### Bug Fixes
+
+* fix(deps): update dependency cytoolz to v1 ([`6eec5e8`](https://github.com/INCT-DD/tiktok-sdk/commit/6eec5e8ab972fed2476f816c842bb7e9d1e40af4))
+
+
 ## v1.1.3 (2024-10-18)
 
 ### Bug Fixes
