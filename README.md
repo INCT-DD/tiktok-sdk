@@ -17,7 +17,7 @@ of the Auth class with your API key and secret:
 
 ```python
 from TikTok.Auth import OAuth2
-from TikTok.Types.OAuth2 import RequestHeadersModel, TokenRequestBodyModel
+from TikTok.ValidationModels.OAuth2 import RequestHeadersModel, TokenRequestBodyModel
 
 auth: OAuth2 = await OAuth2.authenticate(
     headers=RequestHeadersModel(),
