@@ -16,18 +16,13 @@ rich = "13.9.2"
 stamina = "24.3.0"
 structlog = "24.4.0"
 setuptools = "75.2.0"
-cytoolz = "^0.12.3"
+cytoolz = "^1.0.0"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 pdoc3 = "^0.11.1"
-
-
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.28.0"
-ipykernel = "^6.29.5"
 
 [build-system]
 requires = ["poetry-core"]
