@@ -1,4 +1,6 @@
 """
+[![DOI](https://zenodo.org/badge/852515176.svg)](https://doi.org/10.5281/zenodo.13968316)
+
 TikTok is a Python library for interacting with the TikTok Research API.
 
 This library provides a simple and efficient way to access TikTok's API endpoints,
@@ -85,4 +87,16 @@ video_query_response = await query.video.search(
 
 If you are interested in learning more about the underlying API, you can find the documentation here: [https://developers.tiktok.com/doc/research-api-specs-query-videos](https://developers.tiktok.com/doc/research-api-specs-query-videos)
 
+And if you use this library in your work, please cite it as follows:
+
+```
+@misc{teles_tiktok_sdk_2024,
+  author       = {Alexandre Teles},
+  title        = {{TikTok Research API SDK}},
+  year         = 2024,
+  doi          = {10.5281/zenodo.13968316},
+  url          = {https://github.com/INCT-DD/tiktok-sdk},
+  institution  = {Instituto Nacional de Ciência e Tecnologia em Democracia Digital},
+}
+```
 """
