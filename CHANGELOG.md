@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## v1.1.6 (2024-10-22)
+
+### Bug Fixes
+
+* fix(deps): update dependency orjson to v3.10.9 ([`bf964f4`](https://github.com/INCT-DD/tiktok-sdk/commit/bf964f47fb901cb01b2e1c2bcb94cfae817033a1))
+
+
 ## v1.1.5 (2024-10-18)
 
 ### Bug Fixes
