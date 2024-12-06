@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v1.1.9 (2024-12-06)
+
+### Bug Fixes
+
+- **deps**: Update dependency httpx to v0.28.0
+  ([#41](https://github.com/INCT-DD/tiktok-sdk/pull/41),
+  [`72e7dbe`](https://github.com/INCT-DD/tiktok-sdk/commit/72e7dbe4d2873e7c5ecd40523cc2de50f96400c0))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v1.1.8 (2024-12-06)
 
 ### Bug Fixes
