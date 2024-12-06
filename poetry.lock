@@ -455,13 +455,13 @@ trio = ["trio (>=0.22.0,<0.26.0)"]
 
 [[package]]
 name = "httpx"
-version = "0.28.0"
+version = "0.28.1"
 description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "httpx-0.28.0-py3-none-any.whl", hash = "sha256:dc0b419a0cfeb6e8b34e85167c0da2671206f5095f1baa9663d23bcfd6b535fc"},
-    {file = "httpx-0.28.0.tar.gz", hash = "sha256:0858d3bab51ba7e386637f22a61d8ccddaeec5f3fe4209da3a6168dbb91573e0"},
+    {file = "httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"},
+    {file = "httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc"},
 ]
 
 [package.dependencies]
@@ -1138,4 +1138,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "524c61ead052a44ea30ab50891103ec3508b473fefff65f3ab49a6555be11b13"
+content-hash = "6eeded3f629becbfffb7786bda3a059561c8eb096e8a6fc6e7dd2a8af0f40b37"
