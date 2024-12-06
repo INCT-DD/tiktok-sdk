@@ -11,7 +11,7 @@ packages = [{ include = "TikTok" }]
 python = "^3.12"
 pydantic = "2.10.3"
 orjson = "3.10.12"
-httpx = { extras = ["brotli", "http2", "zstd"], version = "0.28.0" }
+httpx = { extras = ["brotli", "http2", "zstd"], version = "0.28.1" }
 rich = "13.9.4"
 stamina = "24.3.0"
 structlog = "24.4.0"
