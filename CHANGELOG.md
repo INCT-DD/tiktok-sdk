@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v1.1.8 (2024-12-06)
+
+### Bug Fixes
+
+- **deps**: Update dependency orjson to v3.10.12
+  ([#36](https://github.com/INCT-DD/tiktok-sdk/pull/36),
+  [`d3652fc`](https://github.com/INCT-DD/tiktok-sdk/commit/d3652fcb16ec4320cc9aa8f793e08837ba2ac7e8))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+### Chores
+
+- **deps**: Update dependency pdoc3 to v0.11.3
+  ([#40](https://github.com/INCT-DD/tiktok-sdk/pull/40),
+  [`de32293`](https://github.com/INCT-DD/tiktok-sdk/commit/de32293b1d8e58349276789609751a21d1fe4563))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v1.1.7 (2024-12-06)
 
 ### Bug Fixes
