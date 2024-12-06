@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v1.1.10 (2024-12-06)
+
+### Bug Fixes
+
+- **deps**: Update dependency rich to v13.9.4 ([#35](https://github.com/INCT-DD/tiktok-sdk/pull/35),
+  [`9320b65`](https://github.com/INCT-DD/tiktok-sdk/commit/9320b65a8a2b110d5373b7f1a4b98f175db9de92))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v1.1.9 (2024-12-06)
 
 ### Bug Fixes
