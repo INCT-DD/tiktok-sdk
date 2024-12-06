@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v1.1.11 (2024-12-06)
+
+### Bug Fixes
+
+- **deps**: Update dependency setuptools to v75.6.0
+  ([#42](https://github.com/INCT-DD/tiktok-sdk/pull/42),
+  [`18921d0`](https://github.com/INCT-DD/tiktok-sdk/commit/18921d0a9e9b19e6255cb6424de0677fb0ea900f))
+
+Co-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+
+
 ## v1.1.10 (2024-12-06)
 
 ### Bug Fixes
