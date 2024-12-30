@@ -10,7 +10,7 @@ packages = [{ include = "TikTok" }]
 [tool.poetry.dependencies]
 python = "^3.12"
 pydantic = "2.10.3"
-orjson = "3.10.12"
+orjson = "3.10.13"
 httpx = { extras = ["brotli", "http2", "zstd"], version = "0.28.0" }
 rich = "13.9.4"
 stamina = "24.3.0"
