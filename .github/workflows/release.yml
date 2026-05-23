@@ -43,7 +43,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Setup pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
     - name: Install poetry
       run: pipx install poetry
     - name: Setup Python
