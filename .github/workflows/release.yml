@@ -44,7 +44,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Setup pages
-      uses: actions/configure-pages@v5
+      uses: actions/configure-pages@v6
     - name: Install uv
       uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
       with:
