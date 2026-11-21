@@ -9,7 +9,7 @@ license-files = ["LICENSE"]
 requires-python = ">=3.12,<4.0"
 dependencies = [
     "pydantic==2.10.3",
-    "orjson==3.10.12",
+    "orjson==3.13.0",
     "httpx[brotli,http2,zstd]==0.28.0",
     "rich==13.9.4",
     "stamina==24.3.0",
