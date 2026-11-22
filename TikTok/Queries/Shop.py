@@ -24,13 +24,12 @@ class ShopQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.ShopInfoURL,
-            request_model_class=Shop.ShopInfoRequestModel,
             response_model_class=Shop.ShopInfoResponseModel,
-            json_data={
-                "shop_name": shop_name,
-                "limit": limit,
-                **self._build_params(fields, Shop.ShopInfoQueryFields),
-            },
+            request=Shop.ShopInfoRequestModel(
+                shop_name=shop_name,
+                limit=limit,
+                fields=self._build_params(fields, Shop.ShopInfoQueryFields)["fields"],
+            ),
         )
 
     async def products(
@@ -52,14 +51,15 @@ class ShopQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.ShopProductsURL,
-            request_model_class=Shop.ShopProductsRequestModel,
             response_model_class=Shop.ShopProductsResponseModel,
-            json_data={
-                "shop_id": shop_id,
-                "page_start": page_start,
-                "page_size": page_size,
-                **self._build_params(fields, Shop.ShopProductQueryFields),
-            },
+            request=Shop.ShopProductsRequestModel.model_validate(
+                {
+                    "shop_id": shop_id,
+                    "page_start": page_start,
+                    "page_size": page_size,
+                    **self._build_params(fields, Shop.ShopProductQueryFields),
+                }
+            ),
         )
 
     async def reviews(
@@ -80,12 +80,13 @@ class ShopQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.ShopReviewsURL,
-            request_model_class=Shop.ShopReviewsRequestModel,
             response_model_class=Shop.ShopReviewsResponseModel,
-            json_data={
-                "product_id": product_id,
-                "page_start": page_start,
-                "page_size": page_size,
-                **self._build_params(fields, Shop.ShopReviewQueryFields),
-            },
+            request=Shop.ShopReviewsRequestModel.model_validate(
+                {
+                    "product_id": product_id,
+                    "page_start": page_start,
+                    "page_size": page_size,
+                    **self._build_params(fields, Shop.ShopReviewQueryFields),
+                }
+            ),
         )

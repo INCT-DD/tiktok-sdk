@@ -18,10 +18,9 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserInfoURL,
-            request_model_class=User.BaseUserInfoRequestModel,
             response_model_class=User.UserInfoResponseModel,
             params=self._build_params(fields, User.UserInfoQueryFields),
-            json_data={"username": username},
+            request=User.BaseUserInfoRequestModel(username=username),
         )
 
     async def liked_videos(
@@ -42,10 +41,11 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserLikedVideosURL,
-            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserLikedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
-            json_data={"username": username, "max_count": max_count, "cursor": cursor},
+            request=User.PaginatedUserInfoRequestModel(
+                username=username, max_count=max_count, cursor=cursor
+            ),
         )
 
     async def pinned_videos(
@@ -59,10 +59,9 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserPinnedVideosURL,
-            request_model_class=User.BaseUserInfoRequestModel,
             response_model_class=User.UserPinnedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
-            json_data={"username": username},
+            request=User.BaseUserInfoRequestModel(username=username),
         )
 
     async def reposted_videos(
@@ -83,10 +82,11 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserRepostedVideosURL,
-            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserRepostedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
-            json_data={"username": username, "max_count": max_count, "cursor": cursor},
+            request=User.PaginatedUserInfoRequestModel(
+                username=username, max_count=max_count, cursor=cursor
+            ),
         )
 
     async def followers(
@@ -107,9 +107,10 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserFollowersURL,
-            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowersResponseModel,
-            json_data={"username": username, "max_count": max_count, "cursor": cursor},
+            request=User.PaginatedUserInfoRequestModel(
+                username=username, max_count=max_count, cursor=cursor
+            ),
         )
 
     async def following(
@@ -130,7 +131,8 @@ class UserQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserFollowingURL,
-            request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowingResponseModel,
-            json_data={"username": username, "max_count": max_count, "cursor": cursor},
+            request=User.PaginatedUserInfoRequestModel(
+                username=username, max_count=max_count, cursor=cursor
+            ),
         )

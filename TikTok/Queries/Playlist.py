@@ -28,16 +28,13 @@ class PlaylistQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.PlaylistInfoURL,
-            request_model_class=Playlist.InfoRequestModel,
             response_model_class=Playlist.InfoResponseModel,
             params=(
                 self._build_params(fields, Playlist.PlaylistInfoQueryFields)
                 if fields is not None
                 else None
             ),
-            json_data={
-                "playlist_id": playlist_id,
-                "cursor": cursor,
-                "max_count": max_count,
-            },
+            request=Playlist.InfoRequestModel(
+                playlist_id=playlist_id, cursor=cursor, max_count=max_count
+            ),
         )

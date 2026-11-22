@@ -49,9 +49,8 @@ class ComplianceQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.ComplianceStatusURL,
-            request_model_class=Compliance.TaskRequestModel,
             response_model_class=Compliance.StatusResponseModel,
-            json_data={"task_id": task_id},
+            request=Compliance.TaskRequestModel(task_id=task_id),
         )
 
     async def download(self, task_id: int) -> bytes:

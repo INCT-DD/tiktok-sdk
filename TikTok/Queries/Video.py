@@ -18,14 +18,16 @@ class VideoQueries(QueryClass):
 
         Select at least one video field. When the response has more videos,
         send its cursor and search_id with the original query and dates.
-        Invalid fields raise ValueError. API errors raise QueryException.
+        The SDK checks the request again to validate caller changes. Invalid
+        inputs raise ValueError. API errors raise QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.VideoSearchURL,
-            request_model_class=Video.VideoQueryRequestModel,
             response_model_class=Video.VideoQueryResponseModel,
             params=self._build_params(fields, Video.VideoQueryFields),
-            json_data=request.model_dump(by_alias=True, exclude_none=True),
+            request=Video.VideoQueryRequestModel.model_validate(
+                request.model_dump(by_alias=True, exclude_none=True)
+            ),
         )
 
     async def comments(
@@ -48,13 +50,12 @@ class VideoQueries(QueryClass):
         """
         return await self._fetch_data(
             url=self.query.endpoints.VideoCommentsURL,
-            request_model_class=Video.VideoCommentRequestModel,
             response_model_class=Video.VideoCommentResponseModel,
             params=self._build_params(fields, Video.VideoCommentFields),
-            json_data={
-                "video_id": video_id,
-                "comment_id": comment_id,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            request=Video.VideoCommentRequestModel(
+                video_id=video_id,
+                comment_id=comment_id,
+                max_count=max_count,
+                cursor=cursor,
+            ),
         )

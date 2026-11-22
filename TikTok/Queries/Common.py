@@ -92,18 +92,16 @@ class QueryClass:
     async def _fetch_data[Result: BaseModel](
         self,
         url: str | HttpUrl,
-        request_model_class: type[BaseRequestModel],
+        request: BaseRequestModel,
         response_model_class: type[Result],
         params: dict[str, str] | None = None,
-        json_data: dict[str, object] | None = None,
     ) -> Result:
-        """Validate and send a JSON request, then return its response model.
+        """Send a validated JSON request and return its response model.
 
-        Omit optional body fields with a value of None. Invalid requests and
-        successful responses with the wrong shape raise a Pydantic validation
-        error. HTTP and TikTok errors raise QueryException.
+        Omit optional body fields with a value of None. A successful response
+        with the wrong shape raises a Pydantic validation error. HTTP and
+        TikTok errors raise QueryException.
         """
-        request = request_model_class.model_validate(json_data or {})
         response = await self._post(
             url,
             params=params,
