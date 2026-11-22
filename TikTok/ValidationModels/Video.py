@@ -711,13 +711,13 @@ class VideoSearchQueryDataModel(BaseModel):
 
     Attributes:
         videos (list[VideoDataModel]): List of video data models matching the search query.
-        cursor (int): The cursor position for pagination.
+        cursor (int | None): The cursor position for pagination, omitted on the last page.
         has_more (bool): Indicates if there are more results available.
         search_id (str): The unique identifier for the search query.
     """
 
     videos: list[VideoDataModel]
-    cursor: int
+    cursor: int | None = Field(default=None)
     has_more: bool
     search_id: str
 
