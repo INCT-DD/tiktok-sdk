@@ -17,7 +17,6 @@ class BaseRequestModel(BaseModel):
             content_type (str): The content type of the request, defaulting to "application/json".
         """
 
-        model_config: ConfigDict = ConfigDict(populate_by_name=True)
         content_type: str = Field(default="application/json", alias="Content-Type")
 
 
@@ -32,7 +31,7 @@ class ResponseErrorModel(BaseModel):
         http_status_code (int): HTTP status reported by the service, if supplied.
     """
 
-    code: str | None = Field(default=None)
-    message: str | None = Field(default=None)
-    log_id: str | None = Field(default=None)
-    http_status_code: int | None = Field(default=None)
+    code: str | None = None
+    message: str | None = None
+    log_id: str | None = None
+    http_status_code: int | None = None
