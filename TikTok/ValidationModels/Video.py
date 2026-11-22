@@ -96,7 +96,7 @@ class VideoQueryFieldName(StrEnum):
         like_count (str): The number of likes the video has received.
         comment_count (str): The number of comments the video has received.
         music_id (str): The ID of the music used in the video.
-        hashtag_names (str): The names of the hashtags associated with the video.
+        hashtag_name (str): The name of the hashtag associated with the video.
         username (str): The username of the video's creator.
         effect_ids (str): The IDs of the effects used in the video.
         playlist_id (str): The ID of the playlist the video belongs to.
@@ -115,7 +115,7 @@ class VideoQueryFieldName(StrEnum):
     like_count = "like_count"
     comment_count = "comment_count"
     music_id = "music_id"
-    hashtag_names = "hashtag_names"
+    hashtag_name = "hashtag_name"
     username = "username"
     effect_ids = "effect_ids"
     playlist_id = "playlist_id"
