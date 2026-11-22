@@ -71,19 +71,21 @@ class QueryClass:
                 "Expected a JSON object from TikTok.", status_code=response.status_code
             )
 
-        error = payload.get("error")
-        if isinstance(error, dict) and error.get("code") not in (None, "", "ok"):
+        details = payload.get("error")
+        error = details if isinstance(details, dict) else {}
+        code = error.get("code")
+        if code not in (None, "", "ok"):
             raise QueryException(
-                error.get("message") or str(error["code"]),
+                error.get("message") or str(code),
                 status_code=response.status_code,
-                code=error["code"],
+                code=code,
                 log_id=error.get("log_id"),
             )
         if not response.is_success:
             raise QueryException(
                 f"TikTok returned HTTP {response.status_code}.",
                 status_code=response.status_code,
-                log_id=error.get("log_id") if isinstance(error, dict) else None,
+                log_id=error.get("log_id"),
             )
         return payload
 
@@ -116,4 +118,4 @@ class QueryClass:
         """Encode the selected fields. Raise ValueError for an empty or unknown selection."""
         if not fields or isinstance(fields, str):
             raise ValueError("Supply a nonempty sequence of field names.")
-        return {"fields": ",".join(field_type(field).value for field in fields)}
+        return {"fields": ",".join(map(field_type, fields))}
