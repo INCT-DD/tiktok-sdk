@@ -51,6 +51,9 @@ class APIEndpoints(BaseRequestModel):
         ComplianceCreateURL (HttpUrl): Submit a batch of video or comment IDs.
         ComplianceStatusURL (HttpUrl): Check the state of a submitted task.
         ComplianceDownloadURL (HttpUrl): Download the valid IDs from a completed task.
+        ShopInfoURL (HttpUrl): Find EU shops by name.
+        ShopProductsURL (HttpUrl): Get a page of products from a shop.
+        ShopReviewsURL (HttpUrl): Get a page of reviews for a product.
     """
 
     OAuthTokenRequestURL: HttpUrl = (
@@ -91,4 +94,13 @@ class APIEndpoints(BaseRequestModel):
     )
     ComplianceDownloadURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task/download/"
+    )
+    ShopInfoURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/shop/"
+    )
+    ShopProductsURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/product/"
+    )
+    ShopReviewsURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/review/"
     )

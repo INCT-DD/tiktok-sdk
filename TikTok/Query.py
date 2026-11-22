@@ -6,6 +6,7 @@ from TikTok.Auth import OAuth2
 from TikTok.ValidationModels.RestAPI import APIEndpoints
 
 from TikTok.Queries.Compliance import ComplianceQueries
+from TikTok.Queries.Shop import ShopQueries
 from TikTok.Queries.User import UserQueries
 from TikTok.Queries.Playlist import PlaylistQueries
 from TikTok.Queries.Video import VideoQueries
@@ -13,7 +14,7 @@ from TikTok.Queries.Video import VideoQueries
 
 class Query:
     """
-    Access video, user, playlist, and compliance operations.
+    Access video, user, playlist, compliance, and Shop operations.
 
     This class requires an OAuth2 authentication instance to initialize and uses an
     asynchronous HTTP client to make requests to the TikTok API.
@@ -31,6 +32,7 @@ class Query:
     playlist: PlaylistQueries
     video: VideoQueries
     compliance: ComplianceQueries
+    shop: ShopQueries
 
     def __init__(self, auth: OAuth2) -> None:
         """
@@ -46,3 +48,4 @@ class Query:
         self.playlist = PlaylistQueries(self)
         self.video = VideoQueries(self)
         self.compliance = ComplianceQueries(self)
+        self.shop = ShopQueries(self)
