@@ -23,13 +23,17 @@ Usage:
     ```
 """
 
+import asyncio
+from datetime import UTC, datetime, timedelta
+from hashlib import sha256
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from time import time
+
 import httpx
 import orjson
 import stamina
 import structlog
-from datetime import datetime, timedelta
-import pickle
-from pathlib import Path
 
 from TikTok.ValidationModels.RestAPI import APIEndpoints
 from TikTok.Exceptions.Auth import AuthException
@@ -60,7 +64,9 @@ class OAuth2:
     _oauth2_token: OAuth2Token | None = None
     client: httpx.AsyncClient
 
-    def __init__(self, headers: RequestHeadersModel, body: TokenRequestBodyModel):
+    def __init__(
+        self, headers: RequestHeadersModel, body: TokenRequestBodyModel
+    ) -> None:
         """
         Initialize the OAuth instance.
 
@@ -71,6 +77,31 @@ class OAuth2:
         self.headers = headers
         self.body = body
         self.client = httpx.AsyncClient(http2=True)
+        key = sha256(body.client_key.encode()).hexdigest()
+        self._cache_file = Path.home() / ".cache" / "tiktok-sdk" / f"{key}.json"
+
+    def _load_cached_token(self) -> OAuth2Token | None:
+        """Read the token for this client key, or return None if it is unavailable."""
+        try:
+            return OAuth2Token.model_validate_json(self._cache_file.read_bytes())
+        except FileNotFoundError:
+            return None
+        except OSError, ValueError:
+            logger.warning("Could not read the cached access token.")
+            return None
+
+    def _save_cached_token(self, token: OAuth2Token) -> None:
+        """Replace the cache file atomically. A write failure leaves the token usable."""
+        try:
+            self._cache_file.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            with NamedTemporaryFile(
+                dir=self._cache_file.parent, delete_on_close=False
+            ) as temp:
+                temp.write(token.model_dump_json().encode())
+                temp.close()
+                Path(temp.name).replace(self._cache_file)
+        except OSError as exc:
+            logger.warning("Could not save the access token.", error=str(exc))
 
     @stamina.retry(on=AuthException, attempts=5)
     async def _request_access_token(self) -> None:
@@ -86,19 +117,13 @@ class OAuth2:
         Raises:
             TikTok.Exceptions.Auth.AuthException: If the request fails or the response is invalid.
         """
-        token_file: Path = Path("token.pkl")
-
-        if self._oauth2_token is None and token_file.exists():
-            try:
-                with open(token_file, "rb") as f:
-                    self._oauth2_token = pickle.load(f)
-                logger.info("Access token loaded from disk.")
-                if (
-                    self._oauth2_token.expires_at - datetime.now()
-                ).total_seconds() > 60:
-                    return
-            except Exception as e:
-                logger.error(f"Failed to load token from disk: {e}")
+        if self._oauth2_token is None:
+            self._oauth2_token = await asyncio.to_thread(self._load_cached_token)
+            if (
+                self._oauth2_token is not None
+                and self._oauth2_token.expires_at.timestamp() > time() + 60
+            ):
+                return
 
         response: httpx.Response = await self.client.post(
             url=APIEndpoints().OAuthTokenRequestURL,
@@ -120,16 +145,10 @@ class OAuth2:
             self._oauth2_token = OAuth2Token(
                 access_token=response_data["access_token"],
                 token_type=response_data["token_type"],
-                expires_at=datetime.now() + timedelta(seconds=expires_in),
+                expires_at=datetime.now(UTC) + timedelta(seconds=expires_in),
             )
 
-            # Serialize token to disk
-            try:
-                with open(token_file, "wb") as f:
-                    pickle.dump(self._oauth2_token, f)
-                logger.info("Access token saved to disk.")
-            except Exception as e:
-                logger.error(f"Failed to save token to disk: {e}")
+            await asyncio.to_thread(self._save_cached_token, self._oauth2_token)
         else:
             logger.error(f"Failed to obtain access token: {response.text}")
             raise AuthException(f"Failed to obtain access token: {response.text}")
@@ -149,7 +168,7 @@ class OAuth2:
         """
         if (
             self._oauth2_token is None
-            or (self._oauth2_token.expires_at - datetime.now()).total_seconds() < 60
+            or self._oauth2_token.expires_at.timestamp() < time() + 60
         ):
             await self._request_access_token()
         return self._oauth2_token.access_token
