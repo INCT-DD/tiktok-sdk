@@ -47,7 +47,10 @@ class APIEndpoints(BaseRequestModel):
         UserFollowersURL (HttpUrl): The URL for retrieving followers of a specified user.
         PlaylistInfoURL (HttpUrl): The URL for retrieving information about a specific playlist.
         VideoSearchURL (HttpUrl): The URL for searching videos based on specified criteria.
-        VideoCommentsURL (HttpUrl): The URL for retrieving comments for a specific video.
+        VideoCommentsURL (HttpUrl): Comments for a video or replies to a comment.
+        ComplianceCreateURL (HttpUrl): Submit a batch of video or comment IDs.
+        ComplianceStatusURL (HttpUrl): Check the state of a submitted task.
+        ComplianceDownloadURL (HttpUrl): Download the valid IDs from a completed task.
     """
 
     OAuthTokenRequestURL: HttpUrl = (
@@ -79,4 +82,13 @@ class APIEndpoints(BaseRequestModel):
     )
     VideoCommentsURL: HttpUrl = (
         f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/comment/list/"
+    )
+    ComplianceCreateURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task/create/"
+    )
+    ComplianceStatusURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task_status/get/"
+    )
+    ComplianceDownloadURL: HttpUrl = (
+        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task/download/"
     )
