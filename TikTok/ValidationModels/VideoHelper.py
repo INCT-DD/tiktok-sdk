@@ -1,4 +1,8 @@
+"""Define the region codes and video fields used by the Research API."""
+
 from enum import StrEnum
+
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, JsonValue
 
 
 class VideoRegionCode(StrEnum):
@@ -249,3 +253,107 @@ class VideoRegionCode(StrEnum):
     PN = "PN"
     TF = "TF"
     RU = "RU"
+
+
+class VideoMetadata(BaseModel):
+    """Keep additional JSON properties when TikTok adds fields to a video object."""
+
+    model_config = ConfigDict(extra="allow")
+    __pydantic_extra__: dict[str, JsonValue] = Field(init=False)
+
+
+class HashtagInfo(VideoMetadata):
+    """Identify a hashtag and give its description when available."""
+
+    hashtag_id: int | str | None = None
+    hashtag_name: str | None = None
+    hashtag_description: str | None = None
+
+
+class StickerInfo(VideoMetadata):
+    """Identify an interactive sticker in a video."""
+
+    sticker_id: int | str | None = None
+    sticker_name: str | None = None
+
+
+class EffectInfo(VideoMetadata):
+    """Describe a video effect and its image, using either API spelling for the URL."""
+
+    effect_id: int | str | None = None
+    effect_name: str | None = None
+    effect_photo_url: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("effect_photo_url", "effect_photo_URI"),
+    )
+
+
+class VideoLabel(VideoMetadata):
+    """Store the label text, type code, and flags supplied for the video."""
+
+    content: str | None = None
+    sink: bool | None = None
+    type: int | None = None
+    vote: bool | None = None
+    warn: bool | None = None
+
+
+class VideoTag(VideoMetadata):
+    """Keep the original tag keys and codes from search results and user video lists.
+
+    The two references assign different meanings to the same numeric codes.
+    Use the field names and values from the endpoint that produced the record.
+    """
+
+    type: str | int | None = None
+    number: int | str | None = None
+    video_tag_type: str | int | None = None
+    video_tag_number: int | str | None = None
+
+
+class VideoRecord(VideoMetadata):
+    """Store video fields available in search results and user video lists.
+
+    Each field is optional because callers select the fields they need. TikTok
+    describes the metadata fields as structures. Keep a single object or a list
+    as received. A returned video ID is available as ``id`` with either wire key.
+    """
+
+    id: int | None = Field(
+        default=None,
+        validation_alias=AliasChoices("id", "video_id"),
+        description="The unique ID of the video.",
+    )
+    create_time: int | None = Field(
+        default=None, description="Video creation time in UTC seconds."
+    )
+    username: str | None = Field(
+        default=None, description="Username of the video creator."
+    )
+    region_code: str | None = Field(
+        default=None, description="Country where the creator registered the account."
+    )
+    video_description: str | None = None
+    music_id: int | None = None
+    like_count: int | None = None
+    comment_count: int | None = None
+    share_count: int | None = None
+    view_count: int | None = None
+    hashtag_names: list[str] | None = None
+    is_stem_verified: bool | None = Field(
+        default=None, description="Whether TikTok verified the video as STEM content."
+    )
+    video_duration: int | None = Field(
+        default=None, description="Video duration in seconds."
+    )
+    favorites_count: int | None = Field(
+        default=None,
+        validation_alias=AliasChoices("favorites_count", "favourites_count"),
+        description="Number of times the video was saved as a favorite.",
+    )
+    hashtag_info_list: list[HashtagInfo] | HashtagInfo | None = None
+    sticker_info_list: list[StickerInfo] | StickerInfo | None = None
+    effect_info_list: list[EffectInfo] | EffectInfo | None = None
+    video_mention_list: list[str] | None = None
+    video_label: VideoLabel | list[VideoLabel] | None = None
+    video_tag: VideoTag | list[VideoTag] | None = None
