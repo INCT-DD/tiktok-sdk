@@ -1,45 +1,30 @@
-"""
-This module defines Pydantic models and enums for TikTok video query validation and request building.
+"""Build video searches and read video, comment, and reply results."""
 
-It includes models for query conditions, operations, field names, and region codes,
-as well as builder classes to construct complex TikTok video queries.
-"""
+import re
+from datetime import date
+from enum import StrEnum
 
 from pydantic import (
     BaseModel,
-    Field,
-    model_validator,
     ConfigDict,
+    Field,
+    StrictInt,
+    StrictStr,
+    field_serializer,
+    model_validator,
 )
-from enum import StrEnum
-import re
 
 from TikTok.ValidationModels.BaseModels import BaseRequestModel, ResponseErrorModel
-from TikTok.ValidationModels.VideoHelper import VideoRegionCode
+from TikTok.ValidationModels.VideoHelper import VideoRecord, VideoRegionCode
 
 
 class VideoQueryFields(StrEnum):
-    """
-    Represents the possible fields for a video object.
+    """Select the fields that TikTok returns for each video in a search.
 
-    Attributes:
-        id (str): The unique identifier for the video.
-        video_description (str): The description of the video.
-        create_time (str): The time the video was created.
-        region_code (str): The region code associated with the video.
-        share_count (str): The number of times the video has been shared.
-        view_count (str): The number of times the video has been viewed.
-        like_count (str): The number of likes the video has received.
-        comment_count (str): The number of comments the video has received.
-        music_id (str): The ID of the music used in the video.
-        hashtag_names (str): The names of the hashtags associated with the video.
-        username (str): The username of the video's creator.
-        effect_ids (str): The IDs of the effects used in the video.
-        playlist_id (str): The ID of the playlist the video belongs to.
-        voice_to_text (str): The text transcription of the video's audio.
-        is_stem_verified (str): Whether the video is verified as STEM content.
-        favorites_count (str): The number of times the video has been added to favorites.
-        video_duration (str): The duration of the video.
+    create_time is a Unix timestamp in seconds. video_duration is the
+    duration in seconds. region_code identifies the country where the
+    creator registered. Use the info lists for hashtag, sticker, and
+    effect details. video_mention_list contains the tagged usernames.
     """
 
     id = "id"
@@ -59,19 +44,19 @@ class VideoQueryFields(StrEnum):
     is_stem_verified = "is_stem_verified"
     favorites_count = "favorites_count"
     video_duration = "video_duration"
+    hashtag_info_list = "hashtag_info_list"
+    sticker_info_list = "sticker_info_list"
+    effect_info_list = "effect_info_list"
+    video_mention_list = "video_mention_list"
+    video_label = "video_label"
+    video_tag = "video_tag"
 
 
 class VideoQueryOperation(StrEnum):
-    """
-    Enum representing the available query operations for TikTok video searches.
+    """Select the comparison for a video condition.
 
-    Attributes:
-        EQ (str): Equal to operation.
-        IN (str): In operation (for multiple values).
-        GT (str): Greater than operation.
-        GTE (str): Greater than or equal to operation.
-        LT (str): Less than operation.
-        LTE (str): Less than or equal to operation.
+    EQ compares one value. IN matches any of the given values. GT and LT
+    apply strict bounds. GTE and LTE include the bound.
     """
 
     EQ = "EQ"
@@ -83,58 +68,34 @@ class VideoQueryOperation(StrEnum):
 
 
 class VideoQueryFieldName(StrEnum):
-    """
-    Enum representing the available field names for TikTok video queries.
+    """Select a field for a video search condition.
 
-    Attributes:
-        id (str): The unique identifier for the video.
-        video_description (str): The description of the video.
-        create_time (str): The time the video was created.
-        region_code (str): The region code associated with the video.
-        share_count (str): The number of times the video has been shared.
-        view_count (str): The number of times the video has been viewed.
-        like_count (str): The number of likes the video has received.
-        comment_count (str): The number of comments the video has received.
-        music_id (str): The ID of the music used in the video.
-        hashtag_name (str): The name of the hashtag associated with the video.
-        username (str): The username of the video's creator.
-        effect_ids (str): The IDs of the effects used in the video.
-        playlist_id (str): The ID of the playlist the video belongs to.
-        voice_to_text (str): The text transcription of the video's audio.
-        is_stem_verified (str): Whether the video is verified as STEM content.
-        favorites_count (str): The number of times the video has been added to favorites.
-        video_duration (str): The duration of the video.
+    Use create_date for a UTC date, video_length for a duration category, and
+    keyword for text in the description. TikTok applies approximate text matching.
+    The older Python names id, create_time, effect_ids, and video_duration send
+    the corresponding filter names shown below.
     """
 
-    id = "id"
-    video_description = "video_description"
-    create_time = "create_time"
-    region_code = "region_code"
-    share_count = "share_count"
-    view_count = "view_count"
-    like_count = "like_count"
-    comment_count = "comment_count"
-    music_id = "music_id"
-    hashtag_name = "hashtag_name"
+    create_date = "create_date"
     username = "username"
-    effect_ids = "effect_ids"
-    playlist_id = "playlist_id"
-    voice_to_text = "voice_to_text"
-    is_stem_verified = "is_stem_verified"
-    favorites_count = "favorites_count"
-    video_duration = "video_duration"
+    region_code = "region_code"
+    video_id = "video_id"
+    hashtag_name = "hashtag_name"
+    keyword = "keyword"
+    music_id = "music_id"
+    effect_id = "effect_id"
+    video_length = "video_length"
+    view_count = "view_count"
+    comment_count = "comment_count"
+
+    id = video_id
+    create_time = create_date
+    effect_ids = effect_id
+    video_duration = video_length
 
 
 class VideoLength(StrEnum):
-    """
-    Enum representing the available video length categories.
-
-    Attributes:
-        SHORT (str): Short video length category.
-        MID (str): Medium video length category.
-        LONG (str): Long video length category.
-        EXTRA_LONG (str): Extra long video length category.
-    """
+    """Select a duration category for the video_length condition."""
 
     SHORT = "SHORT"
     MID = "MID"
@@ -165,214 +126,162 @@ class VideoCommentFields(StrEnum):
     create_time = "create_time"
 
 
-class Condition(BaseModel):
-    """
-    Represents a single condition in a TikTok video query.
+def _query_date(value: str) -> date:
+    """Return the calendar date of a YYYYMMDD string.
 
-    Attributes:
-        operation (VideoQueryOperation): The operation to apply in the condition.
-        field_name (VideoQueryFieldName): The field to which the condition applies.
-        field_values (list[str | int]): The values to use in the condition.
+    Raise ValueError if the input has a different format or an invalid date.
     """
+    if not re.fullmatch(r"[0-9]{8}", value):
+        raise ValueError(f"Expected a date in YYYYMMDD format, got {value!r}")
+    return date.fromisoformat(value)
+
+
+class Condition(BaseModel):
+    """Compare a search field with the supplied values.
+
+    Use IN for one or more values. Every other operator takes one value.
+    GT, GTE, LT, and LTE apply to create_date, view_count, and comment_count.
+    The SDK sends all operands as JSON strings. It accepts integer IDs and
+    counts as a convenience.
+    """
+
+    model_config = ConfigDict(extra="forbid")
 
     operation: VideoQueryOperation
     field_name: VideoQueryFieldName
-    field_values: list[str | int]
+    field_values: list[StrictStr | StrictInt] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_condition(self) -> "Condition":
-        """Return this condition if its values are valid for the selected field.
+    def validate_condition(self) -> Condition:
+        """Validate the operands and return the condition.
 
-        Raise ValueError if a value has the wrong type, format, or range.
+        Raise ValueError for an invalid operation, number of operands, date,
+        region code, duration category, numeric operand, or empty text.
         """
-        field_name: VideoQueryFieldName = self.field_name
-        field_values: list[str | int] = self.field_values
-        match field_name:
-            case VideoQueryFieldName.create_time:
-                for value in field_values:
-                    if not isinstance(value, str):
-                        raise ValueError(
-                            f"Invalid create_time type: {value}. Must be a string in YYYYMMDD format."
-                        )
-                    if not re.match(r"^\d{8}$", value):
-                        raise ValueError(
-                            f"Invalid create_time format: {value}. Use YYYYMMDD."
-                        )
-            case VideoQueryFieldName.username:
-                for value in field_values:
+        if self.operation != VideoQueryOperation.IN and len(self.field_values) != 1:
+            raise ValueError(f"{self.operation} requires exactly one field value")
+        if self.operation not in (
+            VideoQueryOperation.EQ,
+            VideoQueryOperation.IN,
+        ) and self.field_name not in (
+            VideoQueryFieldName.create_date,
+            VideoQueryFieldName.view_count,
+            VideoQueryFieldName.comment_count,
+        ):
+            raise ValueError(
+                f"{self.operation} applies only to create_date, view_count, or comment_count"
+            )
+        for value in self.field_values:
+            match self.field_name:
+                case VideoQueryFieldName.create_date:
+                    _query_date(str(value))
+                case VideoQueryFieldName.region_code:
+                    VideoRegionCode(value)
+                case VideoQueryFieldName.video_length:
+                    VideoLength(value)
+                case (
+                    VideoQueryFieldName.video_id
+                    | VideoQueryFieldName.music_id
+                    | VideoQueryFieldName.effect_id
+                ):
+                    if not re.fullmatch(r"[0-9]+", str(value)):
+                        raise ValueError(f"{self.field_name} requires a decimal ID")
+                case VideoQueryFieldName.view_count | VideoQueryFieldName.comment_count:
+                    if not re.fullmatch(r"-?[0-9]+", str(value)):
+                        raise ValueError(f"{self.field_name} requires an integer")
+                case _:
                     if not isinstance(value, str) or not value.strip():
-                        raise ValueError("Username must be a non-empty string.")
-            case VideoQueryFieldName.region_code:
-                for value in field_values:
-                    if not (
-                        isinstance(value, VideoRegionCode)
-                        or (
-                            isinstance(value, str)
-                            and value in VideoRegionCode._value2member_map_
-                        )
-                    ):
-                        raise ValueError(
-                            f"Invalid region_code: {value}. Must be a valid RegionCode."
-                        )
-            case VideoQueryFieldName.video_duration:
-                for value in field_values:
-                    if not (
-                        isinstance(value, VideoLength)
-                        or (
-                            isinstance(value, str)
-                            and value in VideoLength._value2member_map_
-                        )
-                    ):
-                        raise ValueError(
-                            f"Invalid video_duration: {value}. Must be one of {[e.value for e in VideoLength]}."
-                        )
-            case (
-                VideoQueryFieldName.id
-                | VideoQueryFieldName.music_id
-                | VideoQueryFieldName.effect_ids
-                | VideoQueryFieldName.playlist_id
-            ):
-                for value in field_values:
-                    try:
-                        int_value = int(value)
-                        if int_value <= 0:
-                            raise ValueError(
-                                f"Invalid {field_name}: {value}. Must be a positive integer."
-                            )
-                    except (ValueError, TypeError) as err:
-                        raise ValueError(
-                            f"Invalid {field_name}: {value}. Must be a positive integer."
-                        ) from err
-            case _:
-                pass
+                        raise ValueError(f"{self.field_name} requires nonempty text")
         return self
+
+    @field_serializer("field_values")
+    def serialize_values(self, values: list[str | int]) -> list[str]:
+        """Return every operand as a string for the Research API."""
+        return [str(value) for value in values]
 
 
 class Query(BaseModel):
-    """
-    Represents a complex query structure for TikTok video searches.
+    """Group the conditions for a video search.
 
-    Attributes:
-        and_ (list[Condition] | None): List of conditions to be ANDed together.
-        or_ (list[Condition] | None): List of conditions to be ORed together.
-        not_ (list[Condition] | None): List of conditions to be NOTed.
+    A result must match every condition in and, at least one condition in
+    or when present, and none of the conditions in not. Supply a nonempty
+    list for at least one group.
     """
 
-    model_config: ConfigDict = ConfigDict(
-        populate_by_name=True,
-        use_enum_values=True,
-    )
+    model_config = ConfigDict(validate_by_name=True, extra="forbid")
 
     and_: list[Condition] | None = Field(default=None, alias="and")
     or_: list[Condition] | None = Field(default=None, alias="or")
     not_: list[Condition] | None = Field(default=None, alias="not")
 
+    @model_validator(mode="after")
+    def require_conditions(self) -> Query:
+        """Return the query or raise ValueError if every group is empty."""
+        if not any((self.and_, self.or_, self.not_)):
+            raise ValueError("Supply at least one condition in and, or, or not")
+        return self
+
 
 class VideoQueryRequestModel(BaseRequestModel):
-    """
-    Represents a complete TikTok video query request.
+    """Search for videos in an inclusive range of UTC calendar dates.
 
-    Attributes:
-        query (Query): The complex query structure for the request.
-        start_date (str): The lower bound of video creation time in YYYYMMDD format.
-        end_date (str): The upper bound of video creation time in YYYYMMDD format.
-        max_count (int | None): The maximum number of videos to return.
-        cursor (int | None): The index to start retrieving video results from.
-        search_id (str | None): The unique identifier for a cached search result.
-        is_random (bool): Flag indicating whether to return results in random order.
+    Supply at least one condition and two dates in YYYYMMDD format. The end
+    date can be the start date or up to 30 days later. Request up to 100
+    videos per page. To continue a search, use its cursor and search_id
+    with the same conditions and dates. Set is_random to sample results.
     """
 
-    model_config: ConfigDict = ConfigDict(
-        populate_by_name=True,
-        use_enum_values=True,
-    )
-
-    query: Query = Field(
-        ...,
-        description="""
-        A JSON object that contains three types of children: and, or, and not, each of which is a list of conditions. 
-        An valid query must contain at least one non-empty and, or or not condition lists
-        """,
-    )
-    start_date: str = Field(
-        ...,
-        description="The lower bound of video creation time in YYYYMMDD format. Must be before end_date.",
-        pattern=r"^\d{8}$",
-    )
-    end_date: str = Field(
-        ...,
-        description="""
-        The upper bound of video creation time in YYYYMMDD format. Must be after start_date. 
-        The end_date must be no more than 30 days after the start_date
-        """,
-        pattern=r"^\d{8}$",
-    )
+    query: Query
+    start_date: str = Field(description="First UTC date in YYYYMMDD format.")
+    end_date: str = Field(description="Last UTC date in YYYYMMDD format.")
     max_count: int | None = Field(
-        default=None,
-        gt=0,
-        le=100,
-        description="""
-        The number of videos in response. Default is 20, max is 100. 
-        It is possible that the API returns less videos than the max count due to reasons such as videos deleted/marked as private by users etc.
-        """,
+        default=None, gt=0, le=100, description="Maximum videos per page."
     )
     cursor: int | None = Field(
-        default=None,
-        description="Retrieve video results starting from the specified index",
+        default=None, ge=0, description="Starting index in the search results."
     )
     search_id: str | None = Field(
-        default=None,
-        description="""
-        The unique identifier assigned to a cached search result.
-        This identifier enables the resumption of a prior search and retrieval of additional results based on the same search criteria.
-        """,
+        default=None, description="ID of the cached search to continue."
     )
     is_random: bool = Field(
         default=False,
-        description="""The flag that indicates whether to return results in a random order.
-If set to true, then the API returns 1 - 100 videos in random order that matches the query.
-If set to false or not set with any value, then the API returns results in the decreasing order of video IDs.""",
+        description="Return matches in random order. The default is descending video ID.",
     )
+
+    @model_validator(mode="after")
+    def validate_dates(self) -> VideoQueryRequestModel:
+        """Return the request or raise ValueError for invalid dates or bounds."""
+        span = (_query_date(self.end_date) - _query_date(self.start_date)).days
+        if not 0 <= span <= 30:
+            raise ValueError("end_date must be from 0 to 30 days after start_date")
+        return self
 
 
 class QueryBuilder:
-    """
-    A builder class for constructing complex TikTok video queries.
+    """Build the three condition groups for a video search."""
 
-    This class provides methods to add AND, OR, and NOT conditions to the query.
-    """
-
-    def __init__(self):
-        """Initialize the QueryBuilder with empty condition lists."""
-        self.and_conditions = []
-        self.or_conditions = []
-        self.not_conditions = []
+    def __init__(self) -> None:
+        """Start with an empty list for each condition group."""
+        self.and_conditions: list[Condition] = []
+        self.or_conditions: list[Condition] = []
+        self.not_conditions: list[Condition] = []
 
     def and_(
         self,
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "QueryBuilder":
-        """
-        Add an AND condition to the query.
+    ) -> QueryBuilder:
+        """Require the comparison to match and return the builder.
 
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            QueryBuilder: The current QueryBuilder instance for method chaining.
+        Supply the operator, filter field, and operands. An invalid
+        comparison raises a validation error.
         """
-        field_values = [
-            value.value if isinstance(value, StrEnum) else value
-            for value in field_values
-        ]
-        condition = Condition(
-            operation=operation, field_name=field_name, field_values=field_values
+        self.and_conditions.append(
+            Condition(
+                operation=operation, field_name=field_name, field_values=field_values
+            )
         )
-        self.and_conditions.append(condition)
         return self
 
     def or_(
@@ -380,26 +289,17 @@ class QueryBuilder:
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "QueryBuilder":
-        """
-        Add an OR condition to the query.
+    ) -> QueryBuilder:
+        """Add an alternative comparison and return the builder.
 
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            QueryBuilder: The current QueryBuilder instance for method chaining.
+        At least one comparison in this group must match. An invalid
+        operator, field, or operand raises a validation error.
         """
-        field_values = [
-            value.value if isinstance(value, StrEnum) else value
-            for value in field_values
-        ]
-        condition = Condition(
-            operation=operation, field_name=field_name, field_values=field_values
+        self.or_conditions.append(
+            Condition(
+                operation=operation, field_name=field_name, field_values=field_values
+            )
         )
-        self.or_conditions.append(condition)
         return self
 
     def not_(
@@ -407,135 +307,72 @@ class QueryBuilder:
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "QueryBuilder":
-        """
-        Add a NOT condition to the query.
+    ) -> QueryBuilder:
+        """Exclude matches for the comparison and return the builder.
 
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            QueryBuilder: The current QueryBuilder instance for method chaining.
+        Each comparison in this group excludes matching videos. An invalid
+        operator, field, or operand raises a validation error.
         """
-        field_values = [
-            value.value if isinstance(value, StrEnum) else value
-            for value in field_values
-        ]
-        condition = Condition(
-            operation=operation, field_name=field_name, field_values=field_values
+        self.not_conditions.append(
+            Condition(
+                operation=operation, field_name=field_name, field_values=field_values
+            )
         )
-        self.not_conditions.append(condition)
         return self
 
     def build(self) -> Query:
-        """
-        Build and return the final Query object.
-
-        Returns:
-            Query: The constructed Query object.
-        """
+        """Return the query or raise a validation error if it has no conditions."""
         return Query(
-            and_=self.and_conditions if self.and_conditions else None,
-            or_=self.or_conditions if self.or_conditions else None,
-            not_=self.not_conditions if self.not_conditions else None,
+            and_=self.and_conditions or None,
+            or_=self.or_conditions or None,
+            not_=self.not_conditions or None,
         )
 
 
 class VideoQueryRequestBuilder:
-    """
-    A builder class for constructing TikTokQueryRequest objects.
+    """Build a search request with its dates, conditions, and page options.
 
-    This class provides methods to set various parameters of the TikTokQueryRequest
-    and to add query conditions using the QueryBuilder.
+    Call start_date and end_date, add at least one condition, then call build.
+    The returned model can be passed to query.video.search.
     """
 
-    def __init__(self):
-        """Initialize the TikTokQueryRequestBuilder with default values."""
+    def __init__(self) -> None:
+        """Start with no dates or conditions, and use the API page size."""
         self.query_builder = QueryBuilder()
         self._start_date: str | None = None
         self._end_date: str | None = None
         self._max_count: int | None = None
         self._cursor: int | None = None
         self._search_id: str | None = None
-        self._is_random: bool = False
+        self._is_random = False
 
-    def start_date(self, start_date: str) -> "VideoQueryRequestBuilder":
-        """
-        Set the start date for the query.
-
-        Args:
-            start_date (str): The start date in YYYYMMDD format.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def start_date(self, start_date: str) -> VideoQueryRequestBuilder:
+        """Set the first UTC date in YYYYMMDD format and return the builder."""
         self._start_date = start_date
         return self
 
-    def end_date(self, end_date: str) -> "VideoQueryRequestBuilder":
-        """
-        Set the end date for the query.
-
-        Args:
-            end_date (str): The end date in YYYYMMDD format.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def end_date(self, end_date: str) -> VideoQueryRequestBuilder:
+        """Set the last UTC date in YYYYMMDD format and return the builder."""
         self._end_date = end_date
         return self
 
-    def max_count(self, max_count: int) -> "VideoQueryRequestBuilder":
-        """
-        Set the maximum number of results to return.
-
-        Args:
-            max_count (int): The maximum number of results.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def max_count(self, max_count: int) -> VideoQueryRequestBuilder:
+        """Set the page size from 1 through 100 and return the builder."""
         self._max_count = max_count
         return self
 
-    def cursor(self, cursor: int) -> "VideoQueryRequestBuilder":
-        """
-        Set the cursor position for pagination.
-
-        Args:
-            cursor (int): The cursor position.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def cursor(self, cursor: int) -> VideoQueryRequestBuilder:
+        """Set the index for the next page and return the builder."""
         self._cursor = cursor
         return self
 
-    def search_id(self, search_id: str) -> "VideoQueryRequestBuilder":
-        """
-        Set the search ID for a cached search result.
-
-        Args:
-            search_id (str): The search ID.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def search_id(self, search_id: str) -> VideoQueryRequestBuilder:
+        """Set the ID of the search to continue and return the builder."""
         self._search_id = search_id
         return self
 
-    def is_random(self, is_random: bool) -> "VideoQueryRequestBuilder":
-        """
-        Set whether the results should be returned in random order.
-
-        Args:
-            is_random (bool): True if results should be randomized, False otherwise.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    def is_random(self, is_random: bool) -> VideoQueryRequestBuilder:
+        """Set whether TikTok returns videos in random order and return the builder."""
         self._is_random = is_random
         return self
 
@@ -544,18 +381,8 @@ class VideoQueryRequestBuilder:
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "VideoQueryRequestBuilder":
-        """
-        Add an AND condition to the query.
-
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    ) -> VideoQueryRequestBuilder:
+        """Require the given field comparison and return the request builder."""
         self.query_builder.and_(operation, field_name, field_values)
         return self
 
@@ -564,18 +391,8 @@ class VideoQueryRequestBuilder:
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "VideoQueryRequestBuilder":
-        """
-        Add an OR condition to the query.
-
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    ) -> VideoQueryRequestBuilder:
+        """Add an alternative field comparison and return the request builder."""
         self.query_builder.or_(operation, field_name, field_values)
         return self
 
@@ -584,152 +401,63 @@ class VideoQueryRequestBuilder:
         operation: VideoQueryOperation,
         field_name: VideoQueryFieldName,
         field_values: list[str | int],
-    ) -> "VideoQueryRequestBuilder":
-        """
-        Add a NOT condition to the query.
-
-        Args:
-            operation (VideoQueryOperation): The operation for the condition.
-            field_name (VideoQueryFieldName): The field name for the condition.
-            field_values (list[str | int]): The values for the condition.
-
-        Returns:
-            TikTokQueryRequestBuilder: The current builder instance for method chaining.
-        """
+    ) -> VideoQueryRequestBuilder:
+        """Exclude matches for the given comparison and return the request builder."""
         self.query_builder.not_(operation, field_name, field_values)
         return self
 
     def build(self) -> VideoQueryRequestModel:
-        """
-        Build and return the final TikTokQueryRequest object.
+        """Return a request with the current conditions, dates, and page options.
 
-        Returns:
-            TikTokQueryRequest: The constructed TikTokQueryRequest object.
+        Raise a validation error if the query is empty or the dates or page
+        options are invalid.
         """
-        query = self.query_builder.build()
-        return VideoQueryRequestModel(
-            query=query,
-            start_date=self._start_date,
-            end_date=self._end_date,
-            max_count=self._max_count,
-            cursor=self._cursor,
-            search_id=self._search_id,
-            is_random=self._is_random,
+        return VideoQueryRequestModel.model_validate(
+            {
+                "query": self.query_builder.build(),
+                "start_date": self._start_date,
+                "end_date": self._end_date,
+                "max_count": self._max_count,
+                "cursor": self._cursor,
+                "search_id": self._search_id,
+                "is_random": self._is_random,
+            }
         )
 
 
-class VideoDataModel(BaseModel):
-    """
-    Model representing the fields of a TikTok video search query.
+class VideoDataModel(VideoRecord):
+    """Read the selected fields of a video search result.
 
-    Each field provides metadata about a TikTok video, including identifiers, engagement metrics,
-    and descriptive elements such as hashtags and effects used in the video.
-
-    Attributes:
-        id (int): Unique identifier for the TikTok video. Also called 'item_id' or 'video_id'.
-        create_time (int): UTC Unix epoch (in seconds) of when the TikTok video was posted.
-        username (str): The video's author's username.
-        region_code (str): A two-digit code for the country where the video creator registered their account.
-        video_description (str): The description of the video, also known as the title.
-        music_id (int): The music_id used in the video.
-        like_count (int): The number of likes the video has received.
-        comment_count (int): The number of comments the video has received.
-        share_count (int): The number of shares the video has received.
-        view_count (int): The number of video views the video has received.
-        effect_ids (list[str]): The list of effect ids applied on the video.
-        hashtag_names (list[str]): The list of hashtag names that the video participates in.
-        playlist_id (int): The ID of the playlist that the video belongs to.
-        voice_to_text (str): Voice to text and subtitles (for videos that have voice-to-text features on).
-        is_stem_verified (bool): Whether the video has been verified as being high-quality STEM content.
-        video_duration (int): The duration of the video, in seconds.
-        favorites_count (int): The number of favorites that a video receives.
+    Search can also return the effect IDs, playlist ID, and transcript.
+    An omitted field has the value None.
     """
 
-    id: int | None = Field(
-        default=None,
-        description="Unique identifier for the TikTok video. Also called 'item_id' or 'video_id'",
-    )
-    create_time: int | None = Field(
-        default=None,
-        description="UTC Unix epoch (in seconds) of when the TikTok video was posted. (Inherited field from TNS research API)",
-    )
-    username: str | None = Field(
-        default=None, description="The video's author's username"
-    )
-    region_code: str | None = Field(
-        default=None,
-        description="A two-digit code for the country where the video creator registered their account",
-    )
-    video_description: str | None = Field(
-        default=None,
-        description="The description of the video, also known as the title",
-    )
-    music_id: int | None = Field(
-        default=None, description="The music_id used in the video"
-    )
-    like_count: int | None = Field(
-        default=None, description="The number of likes the video has received"
-    )
-    comment_count: int | None = Field(
-        default=None, description="The number of comments the video has received"
-    )
-    share_count: int | None = Field(
-        default=None, description="The number of shares the video has received"
-    )
-    view_count: int | None = Field(
-        default=None, description="The number of video views the video has received"
-    )
     effect_ids: list[str] | None = Field(
-        default=None, description="The list of effect ids applied on the video"
-    )
-    hashtag_names: list[str] | None = Field(
-        default=None,
-        description="The list of hashtag names that the video participates in",
+        default=None, description="Effect IDs on the video."
     )
     playlist_id: int | None = Field(
-        default=None, description="The ID of the playlist that the video belongs to"
+        default=None, description="ID of the video's playlist."
     )
     voice_to_text: str | None = Field(
-        default=None,
-        description="Voice to text and subtitles (for videos that have voice-to-text features on, show the texts already generated)",
-    )
-    is_stem_verified: bool | None = Field(
-        default=None,
-        description="Whether the video has been verified as being high-quality STEM content",
-    )
-    video_duration: int | None = Field(
-        default=None, description="The duration of the video, in seconds"
-    )
-    favorites_count: int | None = Field(
-        default=None, description="The number of favorites that a video receives"
+        default=None, description="Transcript or subtitle text."
     )
 
 
 class VideoSearchQueryDataModel(BaseModel):
-    """
-    Model representing the data of a TikTok video search query.
+    """Read a page of videos and the information to continue the search.
 
-    Attributes:
-        videos (list[VideoDataModel]): List of video data models matching the search query.
-        cursor (int | None): The cursor position for pagination, omitted on the last page.
-        has_more (bool): Indicates if there are more results available.
-        search_id (str): The unique identifier for the search query.
+    The API can omit the cursor on the last page. Use has_more to determine
+    if another page is available.
     """
 
     videos: list[VideoDataModel]
-    cursor: int | None = Field(default=None)
+    cursor: int | None = None
     has_more: bool
     search_id: str
 
 
 class VideoQueryResponseModel(BaseModel):
-    """
-    Model representing the complete API response for a TikTok video search query.
-
-    Attributes:
-        data (VideoSearchQueryDataModel): The data containing the search results.
-        error (ResponseErrorModel): Error information, if any.
-    """
+    """Read the video search result and TikTok's request status."""
 
     data: VideoSearchQueryDataModel
     error: ResponseErrorModel
