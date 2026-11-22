@@ -180,22 +180,13 @@ class Condition(BaseModel):
     field_values: list[str | int]
 
     @model_validator(mode="after")
-    @classmethod
-    def validate_condition(cls, values: "Condition") -> "Condition":
+    def validate_condition(self) -> "Condition":
+        """Return this condition if its values are valid for the selected field.
+
+        Raise ValueError if a value has the wrong type, format, or range.
         """
-        Validates the condition based on the field name and its corresponding values.
-
-        Args:
-            values (Condition): The condition to validate.
-
-        Returns:
-            Condition: The validated condition.
-
-        Raises:
-            ValueError: If the condition is invalid.
-        """
-        field_name: VideoQueryFieldName = values.field_name
-        field_values: list[str | int] = values.field_values
+        field_name: VideoQueryFieldName = self.field_name
+        field_values: list[str | int] = self.field_values
         match field_name:
             case VideoQueryFieldName.create_time:
                 for value in field_values:
@@ -254,7 +245,7 @@ class Condition(BaseModel):
                         ) from err
             case _:
                 pass
-        return values
+        return self
 
 
 class Query(BaseModel):
