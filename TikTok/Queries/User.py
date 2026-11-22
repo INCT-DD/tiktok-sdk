@@ -1,37 +1,20 @@
-"""
-This module contains the UserQueries class for handling user-related API queries to the TikTok platform.
-"""
-
-from TikTok.ValidationModels import User
+"""Query public account information and lists through the Research API."""
 
 from TikTok.Queries.Common import QueryClass
+from TikTok.ValidationModels import User
 
 
 class UserQueries(QueryClass):
-    """
-    A class to handle user-related API queries to the TikTok platform.
-
-    This class inherits from QueryClass and provides methods to interact with the TikTok API
-    for retrieving user information.
-    """
+    """Get public profiles, videos, and lists of accounts."""
 
     async def info(
         self, username: str, fields: list[User.UserInfoQueryFields]
-    ) -> User.UserInfoResponseDataModel:
-        """
-        Retrieves user information based on the provided username and specified fields.
+    ) -> User.UserInfoResponseModel:
+        """Get the selected profile fields for a TikTok username.
 
-        Parameters:
-            username (str): The username of the TikTok user.
-            fields (list[User.UserInfoQueryFields]): A list of fields to retrieve from the API.
-
-        Returns:
-            User.UserInfoResponseDataModel: The response data model containing user information.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        Give at least one field. The response contains the profile data and
+        the TikTok request log ID. An invalid selection raises ValueError.
+        An API or transport failure raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserInfoURL,
@@ -48,56 +31,35 @@ class UserQueries(QueryClass):
         max_count: int | None = None,
         cursor: int | None = None,
     ) -> User.UserLikedVideosResponseModel:
-        """
-        Retrieves a list of videos liked by the specified TikTok user.
+        """Get one page of videos liked by the specified account.
 
-        Parameters:
-            username (str): The username of the TikTok user whose liked videos are to be retrieved.
-            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
-            max_count (int | None): The maximum number of liked videos to retrieve. Defaults to None.
-            cursor (int | None): A cursor for pagination, allowing retrieval of additional liked videos. Defaults to None.
+        Give at least one video field. The default page size is 20 and the
+        maximum is 100. Use data.user_liked_videos to read the records. When
+        data.has_more is true, pass data.cursor unchanged to the next call.
 
-        Returns:
-            User.UserLikedVideosResponseModel: The response data model containing the user's liked videos.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        An invalid selection or count raises ValueError. An API or transport
+        failure raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserLikedVideosURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserLikedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data={"username": username, "max_count": max_count, "cursor": cursor},
         )
 
     async def pinned_videos(
         self, username: str, fields: list[User.UserVideosQueryFields]
     ) -> User.UserPinnedVideosResponseModel:
-        """
-        Retrieves a list of videos pinned by the specified TikTok user.
+        """Get the videos pinned to the specified account in one response.
 
-        Parameters:
-            username (str): The username of the TikTok user whose pinned videos are to be retrieved.
-            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
-
-        Returns:
-            User.UserPinnedVideosResponseModel: The response data model containing the user's pinned videos.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        Give at least one video field. Read the results from
+        data.pinned_videos_list. An invalid selection raises ValueError.
+        An API or transport failure raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserPinnedVideosURL,
-            request_model_class=User.PaginatedUserInfoRequestModel,
+            request_model_class=User.BaseUserInfoRequestModel,
             response_model_class=User.UserPinnedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
             json_data={"username": username},
@@ -110,33 +72,21 @@ class UserQueries(QueryClass):
         max_count: int | None = None,
         cursor: int | None = None,
     ) -> User.UserRepostedVideosResponseModel:
-        """
-        Retrieves a list of videos reposted by the specified TikTok user.
+        """Get one page of videos reposted by the specified account.
 
-        Parameters:
-            username (str): The username of the TikTok user whose reposted videos are to be retrieved.
-            fields (list[User.UserVideosQueryFields]): A list of fields to retrieve from the API.
-            max_count (int | None): The maximum number of reposted videos to retrieve. Defaults to None.
-            cursor (int | None): A cursor for pagination, allowing retrieval of additional reposted videos. Defaults to None.
+        Give at least one video field. The default page size is 20 and the
+        maximum is 100. Read the videos from data.reposted_videos. When
+        data.has_more is true, use data.cursor as the next index.
 
-        Returns:
-            User.UserRepostedVideosResponseModel: The response data model containing the user's reposted videos.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        An invalid selection or count raises ValueError. An API or transport
+        failure raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserRepostedVideosURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserRepostedVideosResponseModel,
             params=self._build_params(fields, User.UserVideosQueryFields),
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data={"username": username, "max_count": max_count, "cursor": cursor},
         )
 
     async def followers(
@@ -145,31 +95,21 @@ class UserQueries(QueryClass):
         max_count: int | None = None,
         cursor: int | None = None,
     ) -> User.UserFollowersResponseModel:
-        """
-        Retrieves a list of followers for the specified TikTok user.
+        """Get one page of accounts that follow the specified username.
 
-        Parameters:
-            username (str): The username of the TikTok user whose followers are to be retrieved.
-            max_count (int | None): The maximum number of followers to retrieve. Defaults to None.
-            cursor (int | None): A cursor for pagination, allowing retrieval of additional followers. Defaults to None.
+        The cursor selects follows at or before a UTC timestamp in seconds.
+        TikTok starts at the current time when the caller omits the cursor.
+        The default page size is 20 and the maximum is 100. The response
+        contains data.user_followers, data.cursor, and data.has_more.
 
-        Returns:
-            User.UserFollowersResponseModel: The response data model containing the user's followers.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        An invalid count raises ValueError. An API or transport failure
+        raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserFollowersURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowersResponseModel,
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data={"username": username, "max_count": max_count, "cursor": cursor},
         )
 
     async def following(
@@ -178,29 +118,19 @@ class UserQueries(QueryClass):
         max_count: int | None = None,
         cursor: int | None = None,
     ) -> User.UserFollowingResponseModel:
-        """
-        Retrieves a list of users the specified TikTok user is following.
+        """Get one page of accounts followed by the specified username.
 
-        Parameters:
-            username (str): The username of the TikTok user whose following are to be retrieved.
-            max_count (int | None): The maximum number of users to retrieve. Defaults to None.
-            cursor (int | None): A cursor for pagination, allowing retrieval of additional users. Defaults to None.
+        The cursor selects follows at or before a UTC timestamp in seconds.
+        TikTok starts at the current time when the caller omits the cursor.
+        The default page size is 20 and the maximum is 100. The response
+        contains data.user_following, data.cursor, and data.has_more.
 
-        Returns:
-            User.UserFollowingResponseModel: The response data model containing the user's following.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
+        An invalid count raises ValueError. An API or transport failure
+        raises QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.UserFollowingURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowingResponseModel,
-            json_data={
-                "username": username,
-                "max_count": max_count,
-                "cursor": cursor,
-            },
+            json_data={"username": username, "max_count": max_count, "cursor": cursor},
         )

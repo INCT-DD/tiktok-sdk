@@ -3,8 +3,11 @@ Defines models and enumerations related to user data in the TikTok API.
 """
 
 from enum import StrEnum
-from pydantic import BaseModel, Field
-from TikTok.ValidationModels.BaseModels import ResponseErrorModel, BaseRequestModel
+
+from pydantic import AliasChoices, BaseModel, Field
+
+from TikTok.ValidationModels.BaseModels import BaseRequestModel, ResponseErrorModel
+from TikTok.ValidationModels.VideoHelper import VideoRecord
 
 
 class UserInfoQueryFields(StrEnum):
@@ -14,6 +17,7 @@ class UserInfoQueryFields(StrEnum):
     Attributes:
         display_name (str): User's display name.
         bio_description (str): User's bio description.
+        bio_url (str): Public URL in the user's bio.
         avatar_url (str): URL of the user's avatar.
         is_verified (str): Verification status of the user.
         follower_count (str): Number of followers.
@@ -24,6 +28,7 @@ class UserInfoQueryFields(StrEnum):
 
     display_name = "display_name"
     bio_description = "bio_description"
+    bio_url = "bio_url"
     avatar_url = "avatar_url"
     is_verified = "is_verified"
     follower_count = "follower_count"
@@ -34,7 +39,7 @@ class UserInfoQueryFields(StrEnum):
 
 class UserVideosQueryFields(StrEnum):
     """
-    Enumeration of query fields for liked videos.
+    Select fields for liked, pinned, or reposted videos.
 
     Attributes:
         id (int64): The unique identifier of the TikTok video.
@@ -51,6 +56,12 @@ class UserVideosQueryFields(StrEnum):
         video_duration (int64): The duration of the video, in seconds.
         is_stem_verified (bool): Whether the video has been verified as being high quality STEM content.
         favorites_count (int64): The number of favorites that a video receives.
+        hashtag_info_list: Hashtag IDs and descriptions.
+        sticker_info_list: Sticker IDs and names.
+        effect_info_list: Effect IDs, names, and image URLs.
+        video_mention_list: Usernames mentioned in the video.
+        video_label: Labels associated with the video.
+        video_tag: TikTok's tag types and codes.
     """
 
     id = "id"
@@ -67,6 +78,12 @@ class UserVideosQueryFields(StrEnum):
     video_duration = "video_duration"
     is_stem_verified = "is_stem_verified"
     favorites_count = "favorites_count"
+    hashtag_info_list = "hashtag_info_list"
+    sticker_info_list = "sticker_info_list"
+    effect_info_list = "effect_info_list"
+    video_mention_list = "video_mention_list"
+    video_label = "video_label"
+    video_tag = "video_tag"
 
 
 class UserInfoResponseDataModel(BaseModel):
@@ -76,6 +93,9 @@ class UserInfoResponseDataModel(BaseModel):
     Attributes:
         display_name (str | None): User's display name.
         bio_description (str | None): User's bio description.
+        bio_url (str | None): The public URL in the user's bio.
+        author_profile_url (str | None): The profile URL, when returned.
+        username (str | None): The account username, when returned.
         avatar_url (str | None): URL of the user's avatar.
         is_verified (bool | None): Verification status of the user.
         follower_count (int | None): Number of followers.
@@ -90,6 +110,16 @@ class UserInfoResponseDataModel(BaseModel):
     bio_description: str | None = Field(
         default=None, description="The user's bio description"
     )
+    bio_url: str | None = Field(
+        default=None, description="Public URL in the user's bio."
+    )
+    author_profile_url: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("author_profile_URL", "author_profile_url"),
+        serialization_alias="author_profile_URL",
+        description="URL of the account profile, when TikTok returns it.",
+    )
+    username: str | None = None
     avatar_url: str | None = Field(
         default=None, description="The url to a user's profile picture"
     )
@@ -152,77 +182,12 @@ class PaginatedUserInfoRequestModel(BaseUserInfoRequestModel):
     )
     cursor: int | None = Field(
         default=None,
-        description="Results created on or before this time will be returned. It is a Unix timestamp in UTC seconds. Default value is set as the time this request was made.",
+        description="Pass the cursor from the previous response without conversion.",
     )
 
 
-class UserVideosDataModel(BaseModel):
-    """
-    Model representing liked video data response data in the API response.
-
-    Attributes:
-        id (int | None): The unique identifier of the TikTok video.
-        create_time (int | None): UTC Unix epoch (in seconds) of when the TikTok video was posted.
-        username (str | None): The username as the unique identifier of the video creator.
-        region_code (str | None): A two digit code for the country where the video creator registered their account.
-        video_description (str | None): The description of the liked video.
-        music_id (int | None): The music ID used in the video.
-        like_count (int | None): The number of likes the video has received.
-        comment_count (int | None): The number of comments the video has received.
-        share_count (int | None): The number of shares the video has received.
-        view_count (int | None): The number of views the video has received.
-        hashtag_names (list[str] | None): The list of hashtags used in the video.
-        video_duration (int | None): The duration of the video, in seconds.
-        is_stem_verified (bool | None): Whether the video has been verified as being high quality STEM content.
-        favorites_count (int | None): The number of favorites that a video receives.
-    """
-
-    id: int | None = Field(
-        default=None, description="The unique identifier of the TikTok video."
-    )
-    create_time: int | None = Field(
-        default=None,
-        description="UTC Unix epoch (in seconds) of when the TikTok video was posted.",
-    )
-    username: str | None = Field(
-        default=None,
-        description="The username as the unique identifier of the video creator.",
-    )
-    region_code: str | None = Field(
-        default=None,
-        description="A two digit code for the country where the video creator registered their account.",
-    )
-    video_description: str | None = Field(
-        default=None, description="The description of the liked video."
-    )
-    music_id: int | None = Field(
-        default=None, description="The music ID used in the video."
-    )
-    like_count: int | None = Field(
-        default=None, description="The number of likes the video has received."
-    )
-    comment_count: int | None = Field(
-        default=None, description="The number of comments the video has received."
-    )
-    share_count: int | None = Field(
-        default=None, description="The number of shares the video has received."
-    )
-    view_count: int | None = Field(
-        default=None, description="The number of views the video has received."
-    )
-    hashtag_names: list[str] | None = Field(
-        default=None, description="The list of hashtags used in the video."
-    )
-    video_duration: int | None = Field(
-        default=None, description="The duration of the video, in seconds."
-    )
-    is_stem_verified: bool | None = Field(
-        default=None,
-        description="Whether the video has been verified as being high quality STEM content.",
-    )
-    favorites_count: int | None = Field(
-        default=None, description="The number of favorites that a video receives."
-    )
+class UserVideosDataModel(VideoRecord):
+    """Store the fields TikTok returns for a liked, pinned, or reposted video."""
 
 
 class UserLikedVideosResponseDataModel(BaseModel):
@@ -230,13 +195,13 @@ class UserLikedVideosResponseDataModel(BaseModel):
     Model for the response data of liked videos.
 
     Attributes:
-        cursor (int): A Unix timestamp in UTC seconds indicating where to start retrieving liked videos.
+        cursor (int): The value to pass unchanged to get the next page.
         has_more (bool): Indicates whether there are more liked videos available for retrieval.
-        user_liked_videos (list[UserLikedVideosDataModel]): A list of data models containing information about the user's liked videos.
+        user_liked_videos (list[UserVideosDataModel]): The videos in this page.
     """
 
     cursor: int = Field(
-        description="Retrieve liked videos starting from the specified Unix timestamp in UTC seconds"
+        description="The value to pass unchanged to get the next page of liked videos."
     )
     has_more: bool = Field(description="Whether there are more liked videos or not")
     user_liked_videos: list[UserVideosDataModel] = Field(
@@ -262,17 +227,16 @@ class UserRepostedVideosResponseDataModel(BaseModel):
     Model for the response data of reposted videos.
 
     Attributes:
-        cursor (int): A Unix timestamp in UTC seconds indicating where to start retrieving reposted videos.
+        cursor (int): The index for the next page of reposted videos.
         has_more (bool): Indicates whether there are more reposted videos available for retrieval.
         reposted_videos (list[UserVideosDataModel]): A list of data models containing information about the user's reposted videos.
     """
 
-    cursor: int = Field(
-        description="Retrieve reposted videos starting from the specified Unix timestamp in UTC seconds"
-    )
+    cursor: int = Field(description="The index for the next page of reposted videos.")
     has_more: bool = Field(description="Whether there are more reposted videos or not")
     reposted_videos: list[UserVideosDataModel] = Field(
-        description="The list of reposted videos"
+        validation_alias=AliasChoices("reposted_videos", "user_reposted_videos"),
+        description="The list of reposted videos",
     )
 
 
@@ -332,11 +296,11 @@ class UserLikedVideosResponseModel(BaseModel):
     Model for the complete API response for liked videos.
 
     Attributes:
-        data (UserLikedVideosDataModel): The returned list of liked video objects.
+        data (UserLikedVideosResponseDataModel): The videos and pagination details.
         error (ResponseErrorModel): Error information, if any.
     """
 
-    data: UserVideosDataModel
+    data: UserLikedVideosResponseDataModel
     error: ResponseErrorModel
 
 
