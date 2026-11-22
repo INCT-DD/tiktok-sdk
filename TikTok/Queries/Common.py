@@ -1,144 +1,119 @@
-"""
-This module contains the QueryClass, which serves as a base class for handling common API queries.
+"""Send authenticated Research API requests and validate responses."""
 
-The QueryClass is designed to encapsulate shared functionality and attributes for subclasses that interact
-with the TikTok API. It provides a reference to the parent Query instance, allowing subclasses to access
-authentication and endpoint information.
-
-Usage:
-    Subclasses can inherit from QueryClass to implement specific API query methods, ensuring
-    consistent handling of API requests and responses.
-"""
+from collections.abc import Sequence
+from enum import StrEnum
+from json import JSONDecodeError
 
 import httpx
-import orjson
-import structlog
-from pydantic import ValidationError, BaseModel
-from cytoolz import valfilter
-from typing import TYPE_CHECKING, TypeVar, Generic, Type, Any
+from pydantic import BaseModel, HttpUrl
 
 from TikTok.Exceptions.Query import QueryException
+from TikTok.ValidationModels.BaseModels import BaseRequestModel
+from TikTok.ValidationModels.OAuth2 import AuthorizationHeaderModel
 
-logger = structlog.get_logger()
-
-if TYPE_CHECKING:
-    from TikTok.Query import Query
-
-RequestModel = TypeVar("RequestModel", bound=BaseModel)
-ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
+lazy from TikTok.Query import Query
 
 
-class QueryClass(Generic[RequestModel, ResponseModel]):
-    """
-    A subclass to handle common API queries.
+class QueryClass:
+    """Share the authenticated HTTP client across Research API operations."""
 
-    Attributes:
-        query (Query): The parent Query instance.
-    """
-
-    def __init__(self, query: "Query") -> None:
-        """
-        Initializes the QueryClass subclass with a reference to the parent Query instance.
-
-        Parameters:
-            query (Query): The parent Query instance.
-        """
+    def __init__(self, query: Query) -> None:
+        """Use the client, token, and endpoint URLs from the parent query."""
         self.query = query
 
-    async def _fetch_data(
+    async def _post(
         self,
-        url: str,
-        request_model_class: Type[RequestModel],
-        response_model_class: Type[ResponseModel],
-        params: dict[str, Any] | None = None,
-        json_data: dict[str, Any] | None = None,
-    ) -> ResponseModel:
+        url: str | HttpUrl,
+        *,
+        params: dict[str, str] | None = None,
+        json_data: dict[str, object] | None = None,
+        form: dict[str, str] | None = None,
+        files: dict[str, tuple[str, bytes, str]] | None = None,
+    ) -> httpx.Response:
+        """Send JSON or a multipart form and return the HTTP response.
+
+        HTTPX sets the content type and the multipart boundary. A connection
+        error raises QueryException. Each caller decodes the response in the
+        format specified for its endpoint.
         """
-        Generalized method to fetch data from the TikTok API.
-
-        This method handles the HTTP POST request, response validation, and error handling.
-
-        Parameters:
-            url (str): The API endpoint URL.
-            request_model_class (Type[RequestModel]): The Pydantic model class for the request payload.
-            response_model_class (Type[ResponseModel]): The Pydantic model class for the response payload.
-            params (dict[str, Any] | None): Query parameters for the request. Defaults to None.
-            json_data (dict[str, Any] | None): JSON payload for the request. Defaults to None.
-
-        Returns:
-            ResponseModel: An instance of the response_model_class containing the API response data.
-
-        Raises:
-            TikTok.Exceptions.Query.QueryException: If the API query fails or returns an error.
-            pydantic.ValidationError: If the response body is invalid according to the expected model.
-            httpx.HTTPError: For any HTTP errors that may occur during the API request.
-        """
-        headers: httpx.Headers = httpx.Headers(
-            request_model_class.HeadersModel(
-                authorization=await self.query.auth.get_access_token()
-            ).model_dump(by_alias=True)
+        headers = AuthorizationHeaderModel(
+            authorization=await self.query.auth.get_access_token()
         )
-
         try:
-            response: httpx.Response = await self.query.client.post(
-                url=url,
-                headers=headers,
-                params=params or {},
-                json=request_model_class(**(json_data or {})).model_dump(
-                    by_alias=True, exclude_none=True, mode="json"
-                ),
+            return await self.query.client.post(
+                str(url),
+                headers=headers.model_dump(by_alias=True),
+                params=params,
+                json=json_data,
+                data=form,
+                files=files,
             )
-            response.raise_for_status()
-            try:
-                return response_model_class(**orjson.loads(response.content))
-            except ValidationError as validation_error:
-                error_message: dict[str, Any] = orjson.loads(response.text)
-                reason: str = (
-                    error_message["error"]["code"]
-                    if "code" in error_message["error"]
-                    else error_message["error"]["message"]
-                )
-                logger.error(f"TikTok API query failed: {reason}")
-                raise QueryException(
-                    f"TikTok API query failed: {reason}"
-                ) from validation_error
-        except httpx.HTTPError as http_error:
-            error_message = (
-                f"HTTP error during API query: {http_error}.\nResponse: {response.text}"
+        except httpx.RequestError as exc:
+            raise QueryException(f"TikTok request failed: {exc}") from exc
+
+    @staticmethod
+    def _read_json(response: httpx.Response) -> dict[str, object]:
+        """Read the response object and check its HTTP status and TikTok error.
+
+        Raise QueryException for an HTTP failure, an API error, or invalid JSON.
+        Preserve the TikTok error code, message, and log ID when available.
+        """
+        try:
+            payload = response.json()
+        except (JSONDecodeError, UnicodeDecodeError) as exc:
+            raise QueryException(
+                f"TikTok returned HTTP {response.status_code} without a JSON response.",
+                status_code=response.status_code,
+            ) from exc
+
+        if not isinstance(payload, dict):
+            raise QueryException(
+                "Expected a JSON object from TikTok.", status_code=response.status_code
             )
-            logger.error(error_message)
-            raise QueryException(error_message) from http_error
 
-    def _build_json_data(self, json_data: dict[str, Any]) -> dict[str, Any]:
+        error = payload.get("error")
+        if isinstance(error, dict) and error.get("code") not in (None, "", "ok"):
+            raise QueryException(
+                error.get("message") or str(error["code"]),
+                status_code=response.status_code,
+                code=error["code"],
+                log_id=error.get("log_id"),
+            )
+        if not response.is_success:
+            raise QueryException(
+                f"TikTok returned HTTP {response.status_code}.",
+                status_code=response.status_code,
+                log_id=error.get("log_id") if isinstance(error, dict) else None,
+            )
+        return payload
+
+    async def _fetch_data[Result: BaseModel](
+        self,
+        url: str | HttpUrl,
+        request_model_class: type[BaseRequestModel],
+        response_model_class: type[Result],
+        params: dict[str, str] | None = None,
+        json_data: dict[str, object] | None = None,
+    ) -> Result:
+        """Validate and send a JSON request, then return its response model.
+
+        Omit optional body fields with a value of None. Invalid requests and
+        successful responses with the wrong shape raise a Pydantic validation
+        error. HTTP and TikTok errors raise QueryException.
         """
-        Constructs a JSON-compatible dictionary by filtering out None values from the input data.
+        request = request_model_class.model_validate(json_data or {})
+        response = await self._post(
+            url,
+            params=params,
+            json_data=request.model_dump(mode="json", by_alias=True, exclude_none=True),
+        )
+        return response_model_class.model_validate(self._read_json(response))
 
-        This method takes a dictionary and removes any key-value pairs where the value is None,
-        ensuring that the resulting dictionary is suitable for JSON serialization.
-
-        Parameters:
-            json_data (dict[str, Any]): The input dictionary containing data to be filtered.
-
-        Returns:
-            dict[str, Any]: A new dictionary containing only the key-value pairs with non-None values.
-
-        Example:
-            >>> _build_json_data({'key1': 'value1', 'key2': None})
-            {'key1': 'value1'}
-
-        Raises:
-            TypeError: If the input data is not a dictionary.
-        """
-        return valfilter(lambda x: x is not None, json_data)
-
-    def _build_params(self, params: list[str]) -> dict[str, str]:
-        """
-        Converts a list of values into a dictionary with a 'fields' key and a comma-separated string value..
-
-        Parameters:
-            params (list[str]): The list of values to be converted into a comma-separated string.
-
-        Returns:
-            dict[str, str]: A dictionary with a 'fields' key and a comma-separated string value.
-        """
-        return {"fields": ",".join(params)}
+    @staticmethod
+    def _build_params(
+        fields: Sequence[str], field_type: type[StrEnum]
+    ) -> dict[str, str]:
+        """Encode the selected fields. Raise ValueError for an empty or unknown selection."""
+        if not fields or isinstance(fields, str):
+            raise ValueError("Supply a nonempty sequence of field names.")
+        return {"fields": ",".join(field_type(field).value for field in fields)}
