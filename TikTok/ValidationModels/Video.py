@@ -642,7 +642,7 @@ class VideoDataModel(BaseModel):
         voice_to_text (str): Voice to text and subtitles (for videos that have voice-to-text features on).
         is_stem_verified (bool): Whether the video has been verified as being high-quality STEM content.
         video_duration (int): The duration of the video, in seconds.
-        favourites_count (int): The number of favorites that a video receives.
+        favorites_count (int): The number of favorites that a video receives.
     """
 
     id: int | None = Field(
@@ -700,7 +700,7 @@ class VideoDataModel(BaseModel):
     video_duration: int | None = Field(
         default=None, description="The duration of the video, in seconds"
     )
-    favourites_count: int | None = Field(
+    favorites_count: int | None = Field(
         default=None, description="The number of favorites that a video receives"
     )
 
