@@ -11,7 +11,7 @@ Usage:
 
     ```python
     from TikTok.Auth import OAuth2
-    from TikTok.Types.OAuth2 import RequestHeadersModel, TokenRequestBodyModel
+    from TikTok.ValidationModels.OAuth2 import RequestHeadersModel, TokenRequestBodyModel
 
     auth: OAuth2 = await OAuth2.authenticate(
         headers=RequestHeadersModel(),
@@ -27,7 +27,6 @@ import httpx
 import orjson
 import stamina
 import structlog
-from typing import Self
 from datetime import datetime, timedelta
 import pickle
 from pathlib import Path
@@ -103,7 +102,7 @@ class OAuth2:
 
         response: httpx.Response = await self.client.post(
             url=APIEndpoints().OAuthTokenRequestURL,
-            headers=self.headers.model_dump(),
+            headers=self.headers.model_dump(by_alias=True),
             data=self.body.model_dump(),
         )
 
@@ -149,8 +148,8 @@ class OAuth2:
             Exception: If the access token cannot be obtained.
         """
         if (
-            self._oauth2_token.expires_at
-            and (self._oauth2_token.expires_at - datetime.now()).total_seconds() < 60
+            self._oauth2_token is None
+            or (self._oauth2_token.expires_at - datetime.now()).total_seconds() < 60
         ):
             await self._request_access_token()
         return self._oauth2_token.access_token
@@ -175,6 +174,6 @@ class OAuth2:
         Raises:
             Exception: If authentication fails or the access token cannot be obtained.
         """
-        instance: Self = cls(headers, body)
+        instance = cls(headers, body)
         await instance._request_access_token()
         return instance
