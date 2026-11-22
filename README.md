@@ -25,6 +25,8 @@ auth = await OAuth2.authenticate(
 query = Query(auth)
 ```
 
+The SDK caches each client key’s access token in a private JSON file under `~/.cache/tiktok-sdk/`. On the first run after upgrading from `token.pkl`, it requests a new token.
+
 ## Available operations
 
 | Query methods | Inputs and results |
