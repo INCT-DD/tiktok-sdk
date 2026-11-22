@@ -33,6 +33,8 @@ class ResponseDataModel(BaseRequestModel):
         playlist_last_updated (int): Timestamp of when the playlist was last updated.
         playlist_name (str): The name of the playlist.
         playlist_video_ids (list[int]): A list of all video IDs in the playlist.
+        cursor (int): The cursor position for pagination.
+        has_more (bool): Indicates whether there are more videos in the playlist.
     """
 
     playlist_id: int = Field(description="The unique ID of the playlist")
@@ -45,6 +47,10 @@ class ResponseDataModel(BaseRequestModel):
     playlist_name: str = Field(description="The name of the playlist")
     playlist_video_ids: list[int] = Field(
         description="Provides a list of all video IDs in a playlist."
+    )
+    cursor: int = Field(description="The cursor position for pagination.")
+    has_more: bool = Field(
+        description="Indicates whether there are more videos in the playlist."
     )
 
 
