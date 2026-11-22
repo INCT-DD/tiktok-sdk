@@ -104,18 +104,7 @@ class VideoLength(StrEnum):
 
 
 class VideoCommentFields(StrEnum):
-    """
-    Enum representing the fields of a comment.
-
-    Attributes:
-        id (str): The unique identifier for the comment.
-        video_id (str): The identifier of the video associated with the comment.
-        text (str): The content of the comment.
-        like_count (str): The number of likes the comment has received.
-        reply_count (str): The number of replies to the comment.
-        parent_comment_id (str): The identifier of the parent comment, if applicable.
-        create_time (str): The timestamp when the comment was created.
-    """
+    """Select the fields that TikTok returns for each comment or reply."""
 
     id = "id"
     video_id = "video_id"
@@ -124,6 +113,7 @@ class VideoCommentFields(StrEnum):
     reply_count = "reply_count"
     parent_comment_id = "parent_comment_id"
     create_time = "create_time"
+    display_name = "display_name"
 
 
 def _query_date(value: str) -> date:
@@ -464,81 +454,84 @@ class VideoQueryResponseModel(BaseModel):
 
 
 class VideoCommentRequestModel(BaseRequestModel):
-    video_id: int = Field(
-        ..., description="The ID of the video to retrieve comments for"
-    )
-    max_count: int | None = Field(
-        default=None,
-        gt=0,
-        le=100,
-        description="The maximum number of comments to return. Default is 20, max is 100",
-    )
-    cursor: int | None = Field(
-        default=None, description="Retrieve comments starting from the specified index"
-    )
+    """Request comments for one video or replies to one comment.
+
+    Supply exactly one ID. Use the returned cursor to request another page.
+    TikTok supplies a default page size of 10 and accepts up to 100.
+    """
+
+    video_id: int | None = None
+    comment_id: int | None = None
+    max_count: int | None = Field(default=None, gt=0, le=100)
+    cursor: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def require_one_id(self) -> VideoCommentRequestModel:
+        """Return the request or raise ValueError unless it selects one ID."""
+        if (self.video_id is None) == (self.comment_id is None):
+            raise ValueError("Supply exactly one of video_id and comment_id")
+        return self
 
 
 class VideoCommentModel(BaseModel):
-    """
-    Model representing a TikTok video comment.
+    """Read the selected fields for a comment or reply.
 
-    Attributes:
-        id (int): The unique identifier for the comment.
-        text (str): The content of the comment.
-        video_id (int): The identifier of the video associated with the comment.
-        parent_comment_id (int): The identifier of the parent comment, if the comment is a reply.
-        like_count (int): The number of likes the comment has received.
-        reply_count (int): The number of replies to the comment.
-        create_time (int): The UTC Unix epoch (in seconds) of when the comment was posted.
+    create_time is a Unix timestamp in seconds. display_name identifies the
+    author by their display name. An omitted field has the value None.
     """
 
-    id: int | None = Field(
-        default=None, description="The unique identifier for the comment"
-    )
-    text: str | None = Field(default=None, description="The content of the comment")
-    video_id: int | None = Field(
-        default=None,
-        description="The identifier of the video associated with the comment",
-    )
-    parent_comment_id: int | None = Field(
-        default=None,
-        description="The identifier of the parent comment, if the comment is a reply",
-    )
-    like_count: int | None = Field(
-        default=None, description="The number of likes the comment has received"
-    )
-    reply_count: int | None = Field(
-        default=None, description="The number of replies to the comment"
-    )
-    create_time: int | None = Field(
-        default=None,
-        description="The UTC Unix epoch (in seconds) of when the comment was posted",
-    )
+    id: int | None = None
+    text: str | None = None
+    video_id: int | None = None
+    parent_comment_id: int | None = None
+    like_count: int | None = None
+    reply_count: int | None = None
+    create_time: int | None = None
+    display_name: str | None = None
 
 
 class VideoCommentResponseDataModel(BaseModel):
-    """
-    Model representing the data of a TikTok video comment response.
+    """Read a page of comments or replies and its pagination data.
 
-    Attributes:
-        comments (list[VideoCommentModel]): List of video comment models.
-        cursor (int): The cursor position for pagination.
-        has_more (bool): Indicates if there are more results available.
+    TikTok can return an empty data object when the selected item is
+    unavailable. This gives an empty final page with no cursor.
     """
 
     comments: list[VideoCommentModel]
-    cursor: int
+    cursor: int | None = None
     has_more: bool
+
+    @model_validator(mode="before")
+    @classmethod
+    def read_empty_page(cls, data: object) -> object:
+        """Supply the final page values when TikTok returns an empty object."""
+        if data == {}:
+            return {"comments": [], "has_more": False}
+        return data
+
+    @model_validator(mode="after")
+    def require_next_cursor(self) -> VideoCommentResponseDataModel:
+        """Raise ValueError if another page is available but its cursor is absent."""
+        if self.has_more and self.cursor is None:
+            raise ValueError("A comment page with has_more requires a cursor")
+        return self
 
 
 class VideoCommentResponseModel(BaseModel):
-    """
-    Model representing the complete API response for a TikTok video comment query.
+    """Read the comment or reply results and TikTok's request status.
 
-    Attributes:
-        data (VideoCommentResponseDataModel): The data containing the comment results.
-        error (ResponseErrorModel): Error information, if any.
+    A successful response for an unavailable item can omit data. Its result
+    is an empty final page.
     """
 
     data: VideoCommentResponseDataModel
     error: ResponseErrorModel
+
+    @model_validator(mode="before")
+    @classmethod
+    def read_missing_page(cls, response: object) -> object:
+        """Supply an empty page if a successful response omits data."""
+        match response:
+            case {"error": {"code": "ok"}} if "data" not in response:
+                return {**response, "data": {}}
+        return response
