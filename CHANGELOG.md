@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v3.0.0 (2026-11-22)
+
+### Bug Fixes
+
+- Add cursor and has_more fields to playlist info response model
+  ([`e592313`](https://github.com/INCT-DD/tiktok-sdk/commit/e592313e12a46afb60cdb51c7f17973ff9be7a99))
+
+- Make video search response cursor optional
+  ([`5985c70`](https://github.com/INCT-DD/tiktok-sdk/commit/5985c708cfd750a9344bef81004a5938d2d18c24))
+
+- Raise HTTP errors for 5xx responses
+  ([`d3a9ede`](https://github.com/INCT-DD/tiktok-sdk/commit/d3a9ede6bac8b93b8e6e4080b88e27cf0fb0ee48))
+
+- Rename favourites_count to favorites_count in VideoDataModel
+  ([`d8dbb04`](https://github.com/INCT-DD/tiktok-sdk/commit/d8dbb045f684207a269c85e6f741daf5ac93a8fd))
+
+- Rename hashtag_names to hashtag_name in VideoQueryFieldName
+  ([`128d163`](https://github.com/INCT-DD/tiktok-sdk/commit/128d163f8b2ef236d9f0e9fa3841a2d76bbc8199))
+
+### Documentation
+
+- Remove obsolete search_id workaround note from example notebook
+  ([`34ffbba`](https://github.com/INCT-DD/tiktok-sdk/commit/34ffbba2fb7a36eea4956bb629cc2d1862f02129))
+
+
 ## v2.0.0 (2026-11-22)
 
 ### Build System
