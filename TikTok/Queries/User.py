@@ -4,10 +4,10 @@ This module contains the UserQueries class for handling user-related API queries
 
 from TikTok.ValidationModels import User
 
-from TikTok.Queries.Common import QueryClass, RequestModel, ResponseModel
+from TikTok.Queries.Common import QueryClass
 
 
-class UserQueries(QueryClass[RequestModel, ResponseModel]):
+class UserQueries(QueryClass):
     """
     A class to handle user-related API queries to the TikTok platform.
 
@@ -37,7 +37,7 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserInfoURL,
             request_model_class=User.BaseUserInfoRequestModel,
             response_model_class=User.UserInfoResponseModel,
-            params=self._build_params(fields),
+            params=self._build_params(fields, User.UserInfoQueryFields),
             json_data={"username": username},
         )
 
@@ -69,14 +69,12 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserLikedVideosURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserLikedVideosResponseModel,
-            params=self._build_params(fields),
-            json_data=self._build_json_data(
-                {
-                    "username": username,
-                    "max_count": max_count,
-                    "cursor": cursor,
-                }
-            ),
+            params=self._build_params(fields, User.UserVideosQueryFields),
+            json_data={
+                "username": username,
+                "max_count": max_count,
+                "cursor": cursor,
+            },
         )
 
     async def pinned_videos(
@@ -101,7 +99,7 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserPinnedVideosURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserPinnedVideosResponseModel,
-            params=self._build_params(fields),
+            params=self._build_params(fields, User.UserVideosQueryFields),
             json_data={"username": username},
         )
 
@@ -133,14 +131,12 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserRepostedVideosURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserRepostedVideosResponseModel,
-            params=self._build_params(fields),
-            json_data=self._build_json_data(
-                {
-                    "username": username,
-                    "max_count": max_count,
-                    "cursor": cursor,
-                }
-            ),
+            params=self._build_params(fields, User.UserVideosQueryFields),
+            json_data={
+                "username": username,
+                "max_count": max_count,
+                "cursor": cursor,
+            },
         )
 
     async def followers(
@@ -169,13 +165,11 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserFollowersURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowersResponseModel,
-            json_data=self._build_json_data(
-                {
-                    "username": username,
-                    "max_count": max_count,
-                    "cursor": cursor,
-                }
-            ),
+            json_data={
+                "username": username,
+                "max_count": max_count,
+                "cursor": cursor,
+            },
         )
 
     async def following(
@@ -204,11 +198,9 @@ class UserQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.UserFollowingURL,
             request_model_class=User.PaginatedUserInfoRequestModel,
             response_model_class=User.UserFollowingResponseModel,
-            json_data=self._build_json_data(
-                {
-                    "username": username,
-                    "max_count": max_count,
-                    "cursor": cursor,
-                }
-            ),
+            json_data={
+                "username": username,
+                "max_count": max_count,
+                "cursor": cursor,
+            },
         )

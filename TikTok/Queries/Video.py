@@ -4,10 +4,10 @@ This module contains the VideoQueries class for handling video-related API queri
 
 from TikTok.ValidationModels import Video
 
-from TikTok.Queries.Common import QueryClass, RequestModel, ResponseModel
+from TikTok.Queries.Common import QueryClass
 
 
-class VideoQueries(QueryClass[RequestModel, ResponseModel]):
+class VideoQueries(QueryClass):
     """
     A class to handle video-related API queries to the TikTok platform.
 
@@ -34,7 +34,7 @@ class VideoQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.VideoSearchURL,
             request_model_class=Video.VideoQueryRequestModel,
             response_model_class=Video.VideoQueryResponseModel,
-            params=self._build_params(fields),
+            params=self._build_params(fields, Video.VideoQueryFields),
             json_data=request.model_dump(by_alias=True, exclude_none=True),
         )
 
@@ -61,12 +61,10 @@ class VideoQueries(QueryClass[RequestModel, ResponseModel]):
             url=self.query.endpoints.VideoCommentsURL,
             request_model_class=Video.VideoCommentRequestModel,
             response_model_class=Video.VideoCommentResponseModel,
-            params=self._build_params(fields),
-            json_data=self._build_json_data(
-                {
-                    "video_id": video_id,
-                    "max_count": max_count,
-                    "cursor": cursor,
-                }
-            ),
+            params=self._build_params(fields, Video.VideoCommentFields),
+            json_data={
+                "video_id": video_id,
+                "max_count": max_count,
+                "cursor": cursor,
+            },
         )
