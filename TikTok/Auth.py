@@ -40,6 +40,7 @@ from TikTok.Exceptions.Auth import AuthException
 from TikTok.ValidationModels.OAuth2 import (
     RequestHeadersModel,
     TokenRequestBodyModel,
+    OAuth2ResponseModel,
     OAuth2Token,
 )
 
@@ -61,7 +62,6 @@ class OAuth2:
 
     headers: RequestHeadersModel
     body: TokenRequestBodyModel
-    _oauth2_token: OAuth2Token | None = None
     client: httpx.AsyncClient
 
     def __init__(
@@ -77,6 +77,8 @@ class OAuth2:
         self.headers = headers
         self.body = body
         self.client = httpx.AsyncClient(http2=True)
+        self._refresh_lock = asyncio.Lock()
+        self._oauth2_token: OAuth2Token | None = None
         key = sha256(body.client_key.encode()).hexdigest()
         self._cache_file = Path.home() / ".cache" / "tiktok-sdk" / f"{key}.json"
 
@@ -104,95 +106,64 @@ class OAuth2:
             logger.warning("Could not save the access token.", error=str(exc))
 
     @stamina.retry(on=AuthException, attempts=5)
-    async def _request_access_token(self) -> None:
-        """
-        Obtain a new access token from the TikTok API or load from disk if available.
-
-        This method first attempts to load the token from disk. If unsuccessful, it sends
-        a POST request to the OAuth token endpoint and processes the response.
-
-        Returns:
-            None
-
-        Raises:
-            TikTok.Exceptions.Auth.AuthException: If the request fails or the response is invalid.
-        """
-        if self._oauth2_token is None:
-            self._oauth2_token = await asyncio.to_thread(self._load_cached_token)
-            if (
-                self._oauth2_token is not None
-                and self._oauth2_token.expires_at.timestamp() > time() + 60
-            ):
-                return
-
-        response: httpx.Response = await self.client.post(
+    async def _request_access_token(self) -> OAuth2Token:
+        """Request a token. Raise AuthException after five failed OAuth attempts."""
+        response = await self.client.post(
             url=APIEndpoints().OAuthTokenRequestURL,
             headers=self.headers.model_dump(by_alias=True),
             data=self.body.model_dump(),
         )
-
-        if response.status_code == 200:
-            response_data: dict[str, str | int] = orjson.loads(response.content)
-
-            if "error" in response_data:
-                logger.error(f"Failed to obtain access token: {response_data['error']}")
-                raise AuthException(
-                    f"Failed to obtain access token: {response_data['error']}"
-                )
-
-            logger.info("Access token obtained.")
-            expires_in: int = int(response_data["expires_in"])
-            self._oauth2_token = OAuth2Token(
-                access_token=response_data["access_token"],
-                token_type=response_data["token_type"],
-                expires_at=datetime.now(UTC) + timedelta(seconds=expires_in),
+        if response.status_code != 200:
+            logger.error(
+                "Access token request failed.", status_code=response.status_code
             )
-
-            await asyncio.to_thread(self._save_cached_token, self._oauth2_token)
-        else:
-            logger.error(f"Failed to obtain access token: {response.text}")
             raise AuthException(f"Failed to obtain access token: {response.text}")
 
+        payload = orjson.loads(response.content)
+        match payload:
+            case {"error": error}:
+                logger.error("Access token request failed.", error=error)
+                raise AuthException(f"Failed to obtain access token: {error}")
+
+        token = OAuth2ResponseModel.model_validate(payload)
+        logger.info("Access token obtained.")
+        return OAuth2Token(
+            access_token=token.access_token,
+            token_type=token.token_type,
+            expires_at=datetime.now(UTC) + timedelta(seconds=token.expires_in),
+        )
+
     async def get_access_token(self) -> str:
+        """Return the access token. Refresh it when 60 seconds or less remain.
+
+        Concurrent requests on this instance share one refresh. An OAuth error
+        raises AuthException. Invalid response data raises ValueError. A
+        connection failure raises httpx.RequestError.
         """
-        Retrieve the current access token.
-
-        This method checks if the access token is still valid. If the token is about to expire
-        in less than 60 seconds, it requests a new token.
-
-        Returns:
-            str: The current access token.
-
-        Raises:
-            Exception: If the access token cannot be obtained.
-        """
-        if (
-            self._oauth2_token is None
-            or self._oauth2_token.expires_at.timestamp() < time() + 60
-        ):
-            await self._request_access_token()
-        return self._oauth2_token.access_token
+        async with self._refresh_lock:
+            if self._oauth2_token is None:
+                self._oauth2_token = await asyncio.to_thread(self._load_cached_token)
+            if (
+                self._oauth2_token is None
+                or self._oauth2_token.expires_at.timestamp() <= time() + 60
+            ):
+                self._oauth2_token = await self._request_access_token()
+                await asyncio.to_thread(self._save_cached_token, self._oauth2_token)
+            return self._oauth2_token.access_token
 
     @classmethod
     async def authenticate(
         cls, headers: RequestHeadersModel, body: TokenRequestBodyModel
-    ) -> "OAuth2":
-        """
-        Create and authenticate a new OAuth instance.
+    ) -> OAuth2:
+        """Create an OAuth client and obtain a token for the supplied credentials.
 
-        This class method creates a new OAuth instance, initializes it with the provided
-        headers and body, and obtains an access token.
-
-        Args:
-            headers (RequestHeadersModel): Headers for the OAuth request.
-            body (TokenRequestBodyModel): Body parameters for the OAuth request.
-
-        Returns:
-            OAuth2: An authenticated OAuth instance with a valid access token.
-
-        Raises:
-            Exception: If authentication fails or the access token cannot be obtained.
+        Return the authenticated client. If token acquisition fails, close the
+        HTTP client and propagate the error.
         """
         instance = cls(headers, body)
-        await instance._request_access_token()
+        try:
+            await instance.get_access_token()
+        except BaseException:
+            await instance.client.aclose()
+            raise
         return instance
