@@ -88,10 +88,7 @@ class QueryClass(Generic[RequestModel, ResponseModel]):
                     by_alias=True, exclude_none=True, mode="json"
                 ),
             )
-            # Whoever made the TikTok API return correct data on 500 status codes should be ashamed of themselves
-            # This behavior happens mainly on the Playlist Info endpoint, which I never saw return a single 200 status code before
-            if response.is_error and response.status_code < 500:
-                response.raise_for_status()
+            response.raise_for_status()
             try:
                 return response_model_class(**orjson.loads(response.content))
             except ValidationError as validation_error:
