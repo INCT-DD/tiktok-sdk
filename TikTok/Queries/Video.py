@@ -30,22 +30,21 @@ class VideoQueries(QueryClass):
 
     async def comments(
         self,
-        video_id: int,
-        fields: list[Video.VideoCommentFields],
+        video_id: int | None = None,
+        fields: Sequence[Video.VideoCommentFields] = (),
         max_count: int | None = None,
         cursor: int | None = None,
+        *,
+        comment_id: int | None = None,
     ) -> Video.VideoCommentResponseModel:
-        """
-        Retrieves comments for a specific video.
+        """Return one page of comments on a video or replies to a comment.
 
-        Parameters:
-            video_id (int): The ID of the video for which to retrieve comments.
-            fields (list[Video.VideoCommentFields]): A list of fields to include in the response.
-            max_count (int | None): The maximum number of comments to retrieve. Defaults to None.
-            cursor (int | None): The cursor for pagination. Defaults to None.
+        Supply exactly one of video_id and comment_id. Select at least one
+        comment field. Use max_count to request up to 100 items and cursor
+        to continue from an earlier page.
 
-        Returns:
-            Video.VideoCommentResponseModel: The response model containing the video comments.
+        Invalid selectors, IDs, or page options raise ValueError. API errors
+        raise QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.VideoCommentsURL,
@@ -54,6 +53,7 @@ class VideoQueries(QueryClass):
             params=self._build_params(fields, Video.VideoCommentFields),
             json_data={
                 "video_id": video_id,
+                "comment_id": comment_id,
                 "max_count": max_count,
                 "cursor": cursor,
             },
