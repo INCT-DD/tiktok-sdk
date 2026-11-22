@@ -29,6 +29,10 @@ class BaseAPI(StrEnum):
     api_version: str = "v2"
 
 
+_API_ROOT = f"{BaseAPI.base_url}/{BaseAPI.api_version}"
+_RESEARCH_ROOT = f"{_API_ROOT}/research"
+
+
 class APIEndpoints(BaseRequestModel):
     """
     Model representing the API endpoints for the TikTok API.
@@ -56,51 +60,19 @@ class APIEndpoints(BaseRequestModel):
         ShopReviewsURL (HttpUrl): Get a page of reviews for a product.
     """
 
-    OAuthTokenRequestURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/oauth/token/"
-    )
-    UserInfoURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/info/"
-    )
-    UserLikedVideosURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/liked_videos/"
-    )
-    UserPinnedVideosURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/pinned_videos/"
-    )
-    UserRepostedVideosURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/reposted_videos/"
-    )
-    UserFollowingURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/following/"
-    )
-    UserFollowersURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/user/followers/"
-    )
-    PlaylistInfoURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/playlist/info/"
-    )
-    VideoSearchURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/query/"
-    )
-    VideoCommentsURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/video/comment/list/"
-    )
-    ComplianceCreateURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task/create/"
-    )
-    ComplianceStatusURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task_status/get/"
-    )
-    ComplianceDownloadURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/validation_task/download/"
-    )
-    ShopInfoURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/shop/"
-    )
-    ShopProductsURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/product/"
-    )
-    ShopReviewsURL: HttpUrl = (
-        f"{BaseAPI.base_url}/{BaseAPI.api_version}/research/tts/review/"
-    )
+    OAuthTokenRequestURL: HttpUrl = f"{_API_ROOT}/oauth/token/"
+    UserInfoURL: HttpUrl = f"{_RESEARCH_ROOT}/user/info/"
+    UserLikedVideosURL: HttpUrl = f"{_RESEARCH_ROOT}/user/liked_videos/"
+    UserPinnedVideosURL: HttpUrl = f"{_RESEARCH_ROOT}/user/pinned_videos/"
+    UserRepostedVideosURL: HttpUrl = f"{_RESEARCH_ROOT}/user/reposted_videos/"
+    UserFollowingURL: HttpUrl = f"{_RESEARCH_ROOT}/user/following/"
+    UserFollowersURL: HttpUrl = f"{_RESEARCH_ROOT}/user/followers/"
+    PlaylistInfoURL: HttpUrl = f"{_RESEARCH_ROOT}/playlist/info/"
+    VideoSearchURL: HttpUrl = f"{_RESEARCH_ROOT}/video/query/"
+    VideoCommentsURL: HttpUrl = f"{_RESEARCH_ROOT}/video/comment/list/"
+    ComplianceCreateURL: HttpUrl = f"{_RESEARCH_ROOT}/validation_task/create/"
+    ComplianceStatusURL: HttpUrl = f"{_RESEARCH_ROOT}/validation_task_status/get/"
+    ComplianceDownloadURL: HttpUrl = f"{_RESEARCH_ROOT}/validation_task/download/"
+    ShopInfoURL: HttpUrl = f"{_RESEARCH_ROOT}/tts/shop/"
+    ShopProductsURL: HttpUrl = f"{_RESEARCH_ROOT}/tts/product/"
+    ShopReviewsURL: HttpUrl = f"{_RESEARCH_ROOT}/tts/review/"
