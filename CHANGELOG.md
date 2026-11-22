@@ -2,6 +2,78 @@
 
 <!-- version list -->
 
+## v4.0.0 (2026-11-22)
+
+### Bug Fixes
+
+- Align video search filters and result fields with the Research API
+  ([`abfec1d`](https://github.com/INCT-DD/tiktok-sdk/commit/abfec1d97073fe7eb18fac8687094db6dbc2103f))
+
+- Return complete user video pages and profile fields
+  ([`d9cef8d`](https://github.com/INCT-DD/tiktok-sdk/commit/d9cef8dd27bf6fddb0ebc24d1b96b68b7a42246c))
+
+- Send OAuth header aliases and obtain missing client tokens
+  ([`80bdca9`](https://github.com/INCT-DD/tiktok-sdk/commit/80bdca9d455612a088a85b771dd08f42265cb4ad))
+
+- Validate Research fields and preserve HTTP and API errors
+  ([`6cce588`](https://github.com/INCT-DD/tiktok-sdk/commit/6cce588a25937b711efd54f1979e39249382d046))
+
+- **auth**: Isolate token caches by client key
+  ([`2f39671`](https://github.com/INCT-DD/tiktok-sdk/commit/2f396710db612eba8a5cb94804b8673ac0554019))
+
+- **auth**: Serialize access token refreshes
+  ([`1fb6eaf`](https://github.com/INCT-DD/tiktok-sdk/commit/1fb6eaf74bc96375b07e0460af8f6a97bc73196c))
+
+### Continuous Integration
+
+- Check debug statements with the SDK Python version
+  ([`e3c3575`](https://github.com/INCT-DD/tiktok-sdk/commit/e3c3575d25391bf733369ec31bd07ea68a8c5c8a))
+
+### Documentation
+
+- Document Research API endpoints, pagination, and v3 migration
+  ([`4718eb3`](https://github.com/INCT-DD/tiktok-sdk/commit/4718eb36b8f2a972ecc4ab51425a69845162a554))
+
+### Features
+
+- Create, check, and download batch compliance tasks
+  ([`e0e0c69`](https://github.com/INCT-DD/tiktok-sdk/commit/e0e0c69add30bb3d8a186923ff37fe6011105661))
+
+- Query comment replies and read empty comment pages
+  ([`fa2d545`](https://github.com/INCT-DD/tiktok-sdk/commit/fa2d5454c45a4e02d298be53fc23db4f66e5254a))
+
+- Query Research Shop information, products, and reviews
+  ([`99ef38f`](https://github.com/INCT-DD/tiktok-sdk/commit/99ef38f018d4559d8675165fc901553e4d4e51a3))
+
+- Support playlist page size and field selection
+  ([`28d7a1c`](https://github.com/INCT-DD/tiktok-sdk/commit/28d7a1cc06581bada1a4870e962fe07d8699e9a3))
+
+### Performance Improvements
+
+- **examples**: Run independent video searches in bounded batches
+  ([`bb66ccf`](https://github.com/INCT-DD/tiktok-sdk/commit/bb66ccfadd66e89ad6e69e3c41c14184d4dbe2f7))
+
+### Refactoring
+
+- **api**: Share endpoint URL prefixes
+  ([`7ff79f0`](https://github.com/INCT-DD/tiktok-sdk/commit/7ff79f011571fc2106a63fc3648c4619c445ee04))
+
+- **compliance**: Simplify upload ID parsing
+  ([`07c1488`](https://github.com/INCT-DD/tiktok-sdk/commit/07c1488fa3777b81e28b0fa72264b10c631b6dff))
+
+- **models**: Simplify common field defaults
+  ([`9d076c0`](https://github.com/INCT-DD/tiktok-sdk/commit/9d076c0de28b4c15acfeaa19b24329fe67c31871))
+
+- **queries**: Send validated request models
+  ([`95cd94c`](https://github.com/INCT-DD/tiktok-sdk/commit/95cd94ccef9067fbc249256b91d0a79dd2c4fd25))
+
+- **queries**: Simplify error handling and field selection
+  ([`b8e95eb`](https://github.com/INCT-DD/tiktok-sdk/commit/b8e95eb512221bb18662a1b6bc6557e994fd87c6))
+
+- **video**: Isolate search condition validation
+  ([`96a4517`](https://github.com/INCT-DD/tiktok-sdk/commit/96a4517ab511b6e0f14fde05582f5c4b285f1e96))
+
+
 ## v3.0.0 (2026-11-22)
 
 ### Bug Fixes
