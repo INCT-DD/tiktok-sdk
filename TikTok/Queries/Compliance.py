@@ -24,10 +24,9 @@ class ComplianceQueries(QueryClass):
         """
         if isinstance(file_data, Path):
             content = await asyncio.to_thread(file_data.read_text, encoding="utf-8-sig")
-            values = re.findall(r"[^,\s]+", content)
-            if any(not value.isascii() or not value.isdecimal() for value in values):
+            if re.search(r"[^0-9,\s]", content):
                 raise ValueError("The file must contain decimal video or comment IDs.")
-            ids = [int(value) for value in values]
+            ids = [int(match.group()) for match in re.finditer(r"[0-9]+", content)]
         else:
             ids = file_data
         request = Compliance.CreateRequestModel.model_validate(
