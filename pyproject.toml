@@ -1,6 +1,6 @@
 [project]
 name = "TikTok"
-version = "1.1.11"
+version = "2.0.0"
 description = "Async wrapper for the TikTok research API"
 readme = "README.md"
 authors = [{ name = "Alexandre Teles", email = "ateles.1@gmail.com" }]

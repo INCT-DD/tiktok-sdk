@@ -2,6 +2,54 @@
 
 <!-- version list -->
 
+## v2.0.0 (2026-11-22)
+
+### Build System
+
+- Migrate package configuration and lockfile from poetry to uv
+  ([`80e198c`](https://github.com/INCT-DD/tiktok-sdk/commit/80e198c42c951c061e120b5ffa32ca86d81ff810))
+
+- Require Python 3.15
+  ([`5bb9d2a`](https://github.com/INCT-DD/tiktok-sdk/commit/5bb9d2a737db84edf09fb1bf3e8a59fcdf6b6313))
+
+- Update uv_build to 0.13.9 and remove setuptools
+  ([`f2fe414`](https://github.com/INCT-DD/tiktok-sdk/commit/f2fe414c7aa7016ea25a91edb9e598e214090899))
+
+### Chores
+
+- Pin Python version to 3.12
+  ([`c99cee6`](https://github.com/INCT-DD/tiktok-sdk/commit/c99cee68973090b51e3f1bfffbf5b009e7d5b3e6))
+
+- Update Black and pre-commit hooks
+  ([`aba2981`](https://github.com/INCT-DD/tiktok-sdk/commit/aba298188a772b83325155160fbc5339877cf3aa))
+
+### Continuous Integration
+
+- Migrate GitHub Actions workflows from poetry to uv
+  ([`b04b4cf`](https://github.com/INCT-DD/tiktok-sdk/commit/b04b4cf4496ae7669e75b22f859e91cb7c8010d1))
+
+- Split docs build and GitHub Pages deployment into separate jobs
+  ([`1350eea`](https://github.com/INCT-DD/tiktok-sdk/commit/1350eea818962541e9105f151320161d7dffa727))
+
+- Update GitHub Actions to latest Node 24 compatible versions
+  ([`63b6fd4`](https://github.com/INCT-DD/tiktok-sdk/commit/63b6fd4e05ddae7d76de697024c00479c4311dae))
+
+- Update semantic-release configuration for uv
+  ([`8612c2e`](https://github.com/INCT-DD/tiktok-sdk/commit/8612c2e4ff62b20245f6c43715782478076abb79))
+
+- Upgrade python-semantic-release to v10.7.0
+  ([`97c92dd`](https://github.com/INCT-DD/tiktok-sdk/commit/97c92dd373eda204e0e80b8231026752c074e93e))
+
+### Deps
+
+- Update SDK and documentation dependencies
+  ([`df33b23`](https://github.com/INCT-DD/tiktok-sdk/commit/df33b23a66e816dda65eb7ee9b95eb16510db3f6))
+
+### Breaking Changes
+
+- Python 3.15 is the minimum supported version.
+
+
 ## v1.1.11 (2024-12-06)
 
 ### Bug Fixes
