@@ -11,7 +11,7 @@ jobs:
       id-token: write
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Setup dummy git user
@@ -27,7 +27,7 @@ jobs:
       with:
         enable-cache: true
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version-file: ".python-version"
     - name: Install dependencies
