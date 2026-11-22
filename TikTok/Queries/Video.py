@@ -1,34 +1,24 @@
-"""
-This module contains the VideoQueries class for handling video-related API queries to the TikTok platform.
-"""
+"""Query videos, video comments, and comment replies with the Research API."""
 
-from TikTok.ValidationModels import Video
+from collections.abc import Sequence
 
 from TikTok.Queries.Common import QueryClass
+from TikTok.ValidationModels import Video
 
 
 class VideoQueries(QueryClass):
-    """
-    A class to handle video-related API queries to the TikTok platform.
-
-    This class inherits from QueryClass and provides methods to interact with the TikTok API
-    for retrieving video information.
-    """
+    """Send video search and comment requests with a Research API client."""
 
     async def search(
         self,
         request: Video.VideoQueryRequestModel,
-        fields: list[Video.VideoQueryFields],
+        fields: Sequence[Video.VideoQueryFields],
     ) -> Video.VideoQueryResponseModel:
-        """
-        Searches for videos based on the provided request parameters.
+        """Return one page of videos that match the search request.
 
-        Parameters:
-            request (Video.VideoQueryRequestModel): The request parameters for the video search.
-            fields (list[Video.VideoQueryFields]): A list of fields to include in the response.
-
-        Returns:
-            Video.VideoQueryResponseModel: The response model containing the video search results.
+        Select at least one video field. When the response has more videos,
+        send its cursor and search_id with the original query and dates.
+        Invalid fields raise ValueError. API errors raise QueryException.
         """
         return await self._fetch_data(
             url=self.query.endpoints.VideoSearchURL,
