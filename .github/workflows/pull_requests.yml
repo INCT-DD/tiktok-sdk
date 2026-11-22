@@ -33,7 +33,8 @@ jobs:
     - name: Install dependencies
       run: uv sync --locked
     - name: Python Semantic Release
-      uses: python-semantic-release/python-semantic-release@v9.15.1
+      uses: python-semantic-release/python-semantic-release@v10.7.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        root_options: "-vv --noop"
+        no_operation_mode: true
+        verbosity: 2
