@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [{ name = "Alexandre Teles", email = "ateles.1@gmail.com" }]
 license = "AGPL-3.0-or-later"
 license-files = ["LICENSE"]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.15,<4.0"
 dependencies = [
     "pydantic==2.14.4",
     "orjson==3.13.0",

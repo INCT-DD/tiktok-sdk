@@ -3,6 +3,7 @@
 [![DOI](https://zenodo.org/badge/852515176.svg)](https://doi.org/10.5281/zenodo.13968316)
 
 TikTok is a Python library for interacting with the TikTok Research API.
+The minimum Python version is 3.15.
 
 This library provides a simple and efficient way to access TikTok's API endpoints,
 allowing developers to retrieve user information, video details, and other relevant data.
